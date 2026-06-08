@@ -1,0 +1,15 @@
+allow_embedding: false
+db_schema: {}
+metadata:
+  description: Connect Anvil app backends to mAIvn services for agent orchestration.
+  title: mAIvn Anvil Connector
+name: maivn_anvil_connector
+native_deps:
+  head_html: ''
+package_name: maivn_anvil_connector
+runtime_options:
+  client_version: '3'
+  server_spec: null
+  server_version: python3-full
+  version: 2
+services: []

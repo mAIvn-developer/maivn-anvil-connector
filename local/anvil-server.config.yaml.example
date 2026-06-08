@@ -1,0 +1,10 @@
+# Local-only Anvil App Server configuration.
+# Copy to the parent directory of your consuming Anvil app as `config.yaml`.
+#
+# Replace <YOUR_DEPENDENCY_APP_ID> with the opaque app_id from the consuming
+# app's anvil.yaml dependencies section.
+#
+# See: https://github.com/anvil-works/anvil-runtime/blob/master/doc/dependencies.md
+
+dep-id:
+  "<YOUR_DEPENDENCY_APP_ID>": "maivn-anvil-connector"

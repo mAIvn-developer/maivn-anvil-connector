@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "maivn-anvil-connector"
+dynamic = ["version"]
+description = "Anvil dependency app for connecting Anvil backends to mAIvn services"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Chad Heathcote", email = "developer@maivn.io" }]
+keywords = ["maivn", "anvil", "connector", "agents"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://maivn.io"
+Repository = "https://github.com/mAIvn-developer/maivn-anvil-connector"
+Issues = "https://github.com/mAIvn-developer/maivn-anvil-connector/issues"
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.409",
+    "pytest>=9.0.3",
+    "ruff>=0.15.12,<1",
+]
+
+[tool.hatch.version]
+path = "server_code/version.py"
+
+[tool.hatch.build.targets.wheel]
+bypass-selection = true
+only-include = ["README.md", "LICENSE"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = []
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+pythonpath = ["."]
+
+[tool.pyright]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
+include = ["server_code", "client_code", "tests"]
+exclude = [".venv"]

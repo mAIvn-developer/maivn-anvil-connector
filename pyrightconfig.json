@@ -1,0 +1,21 @@
+{
+  "venvPath": "../..",
+  "venv": ".venv",
+  "typeCheckingMode": "basic",
+  "include": [
+    "server_code",
+    "client_code",
+    "tests"
+  ],
+  "exclude": [
+    ".venv"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "."
+      ]
+    }
+  ]
+}
