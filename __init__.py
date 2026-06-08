@@ -6,6 +6,6 @@ from __future__ import annotations
 import os
 
 __path__ = [
-    os.path.join(os.path.dirname(__file__), 'server_code'),
-    os.path.join(os.path.dirname(__file__), 'client_code'),
+    os.path.join(os.path.dirname(__file__), "server_code"),
+    os.path.join(os.path.dirname(__file__), "client_code"),
 ]

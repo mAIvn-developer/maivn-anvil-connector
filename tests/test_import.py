@@ -10,4 +10,4 @@ def test_package_is_importable() -> None:
 
 
 def test_version() -> None:
-    assert version.__version__ == '0.1.0'
+    assert version.__version__ == "0.1.0"

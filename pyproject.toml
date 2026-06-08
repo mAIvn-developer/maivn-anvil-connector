@@ -41,6 +41,7 @@ dev = [
 path = "server_code/version.py"
 
 [tool.hatch.build.targets.wheel]
+# Anvil loads this repo root as maivn_anvil_connector; the wheel ships metadata only.
 bypass-selection = true
 only-include = ["README.md", "LICENSE"]
 
@@ -62,5 +63,6 @@ pythonpath = ["."]
 [tool.pyright]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
+stubPath = "stubs"
 include = ["server_code", "client_code", "tests"]
 exclude = [".venv"]
