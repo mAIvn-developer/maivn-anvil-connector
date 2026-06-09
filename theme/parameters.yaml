@@ -1,1 +1,13 @@
-roles: []
+roles:
+  - name: maivn-chat
+    components: [ColumnPanel]
+  - name: maivn-composer-input
+    components: [TextArea, TextBox]
+  - name: maivn-composer-files
+    components: [FileLoader]
+  - name: maivn-composer-send
+    components: [Button]
+  - name: maivn-interrupt-prompt
+    components: [Label]
+  - name: maivn-interrupt-submit
+    components: [Button]

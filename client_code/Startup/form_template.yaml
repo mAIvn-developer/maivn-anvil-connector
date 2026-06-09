@@ -1,0 +1,4 @@
+is_package: true
+components: []
+container:
+  type: HtmlTemplate

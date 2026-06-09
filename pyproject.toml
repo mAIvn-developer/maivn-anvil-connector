@@ -48,10 +48,20 @@ only-include = ["README.md", "LICENSE"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+# Type-checker stub files (.pyi) are re-export shims for the Anvil path-merge
+# layout; they intentionally use star re-exports and are not runtime code.
+extend-exclude = ["stubs"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# client_code runs in the Anvil client (Skulpt), which evaluates annotations at
+# runtime and ships no `typing`/`dataclasses`/`__future__.annotations`. Client
+# modules are therefore written annotation-free, so the required-future-import
+# (I002) and pyupgrade-annotation (UP) rules must not apply there.
+"client_code/**" = ["I002", "UP006", "UP007", "UP035", "UP045"]
 
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]

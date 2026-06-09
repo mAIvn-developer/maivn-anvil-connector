@@ -1,0 +1,6 @@
+is_package: true
+components: []
+container:
+  type: ColumnPanel
+  properties:
+    role: maivn-chat

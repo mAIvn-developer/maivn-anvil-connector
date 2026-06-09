@@ -28,6 +28,118 @@ Import from consuming Anvil apps (after adding this app as a dependency):
 from maivn_anvil_connector import version
 ```
 
+## Using the connector
+
+The connector wires your own `maivn.Agent` / `Swarm` (running in your Anvil
+server via the SDK) to a streaming chat UI, using **only Anvil-native
+infrastructure** (background task + Data Tables + an adaptive client poll). No
+browser-to-mAIvn connection and no mAIvn platform changes.
+
+### Prerequisites
+
+- A **paid Anvil plan** — the connector runs each turn in an
+  `@anvil.server.background_task`, which requires background tasks.
+- The **`maivn` SDK** installed in your app's server packages.
+- This app added as a **dependency** in your app's Dependencies.
+
+### 1. Configure the API key
+
+Set an App Secret named `MAIVN_API_KEY` (Anvil → Secrets). The connector reads
+it server-side via `maivn_anvil_connector.config.resolve_api_key()`. The key
+never reaches the browser.
+
+### 2. Register your agent (server module, at import time)
+
+```python
+from maivn import Agent
+from maivn_anvil_connector import registry
+from maivn_anvil_connector.config import resolve_api_key
+
+agent = Agent(
+    name="support",
+    description="Customer support assistant",
+    system_prompt="You are a helpful support agent.",
+    api_key=resolve_api_key(),
+)
+registry.register_agent("support", agent)
+```
+
+Register **at module import time** (top level), not inside a callable: Anvil may
+run callables and background tasks on different server instances, so each
+instance must rebuild the registry on import.
+
+### 3. Drop in the UI (client form)
+
+```python
+from maivn_anvil_connector.components.MaivnChatPanel import MaivnChatPanel
+
+self.add_component(MaivnChatPanel(agent_key="support"))
+```
+
+That is the whole integration. `MaivnChatPanel` streams assistant text, shows a
+live activity feed (tools, system tools, swarm assignments), handles
+attachments, and renders interrupt prompts. Pass `show_badge=False` to hide the
+"Powered by mAIvn" badge.
+
+### Interrupts (human-in-the-loop)
+
+Attach `make_anvil_interrupt_handler()` as a tool's `input_handler`. Omit the
+session id — the connector binds the active session around each turn:
+
+```python
+from maivn import depends_on_interrupt
+from maivn_anvil_connector.interrupts import make_anvil_interrupt_handler
+
+@agent.toolify(description="Delete a record after explicit approval")
+@depends_on_interrupt(
+    arg_name="confirmation",
+    input_handler=make_anvil_interrupt_handler(
+        input_type="boolean", prompt="Approve deleting this record?"
+    ),
+)
+def delete_record(confirmation: bool) -> dict:
+    # Boolean interrupt: Anvil sends "yes"/"no"; the SDK coerces to bool.
+    return {"deleted": confirmation}
+```
+
+The run pauses, the panel renders the control, and the turn resumes in the same
+background task once the user answers.
+
+### Security — full mAIvn `private_data` parity
+
+Every event reaches the client only through a `frontend_safe`
+`maivn.events.EventBridge`, which redacts injected `private_data`, merged PII,
+and internal error details. Raw SDK events are **never** persisted, so private
+data and PII never reach the Data Table or the browser. Your
+`@depends_on_private_data` tools work exactly as in any SDK integration.
+Sensitive interrupt responses are data-minimized: consumed by the handler and
+deleted immediately, never copied into the event log. The connector's Data
+Tables are server-only (`client: none`); the client reaches data only through
+ownership-checked callables.
+
+### Public API (submodule-style)
+
+```python
+from maivn_anvil_connector import registry                  # register_agent / resolve_agent
+from maivn_anvil_connector.config import resolve_api_key
+from maivn_anvil_connector.interrupts import make_anvil_interrupt_handler
+from maivn_anvil_connector.attachments import media_to_attachment
+from maivn_anvil_connector.components.MaivnChatPanel import MaivnChatPanel
+from maivn_anvil_connector.session import MaivnSession       # advanced: custom client UIs
+```
+
+SDK reference docs (agents, tools, swarms, structured output) live at
+[developer.maivn.io/docs](https://developer.maivn.io/docs) and are not
+duplicated here.
+
+### Showcase / docs app
+
+This repo **is** a runnable, branded Anvil app: its startup form opens a mAIvn-
+branded home with in-app Anvil+mAIvn guidance and three runnable examples
+(basic chat, an interrupt approval gate, a research swarm). The examples are
+usage-capped (per-day message limit, short responses) so demoing does not burn
+tokens — see `server_code/limits.py`.
+
 ## Local development (monorepo)
 
 From the maivn-apps root:

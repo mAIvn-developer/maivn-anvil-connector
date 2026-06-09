@@ -1,0 +1,16 @@
+is_package: true
+custom_component: true
+properties:
+  - name: agent_key
+    type: string
+    default_value: ""
+  - name: example
+    type: string
+  - name: show_badge
+    type: boolean
+    default_value: true
+components: []
+container:
+  type: ColumnPanel
+  properties:
+    role: maivn-chat

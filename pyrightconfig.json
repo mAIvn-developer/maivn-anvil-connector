@@ -15,7 +15,8 @@
     {
       "root": ".",
       "extraPaths": [
-        "."
+        ".",
+        "tests/_fakes"
       ]
     }
   ]
