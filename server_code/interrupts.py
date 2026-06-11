@@ -93,10 +93,18 @@ def make_anvil_interrupt_handler(
     return handler
 
 
-@anvil.server.callable
-def submit_interrupt(*, session_id, interrupt_id, response):
-    if not sessions.is_authorized(session_id):
+RPC_SUBMIT_INTERRUPT = "maivn_submit_interrupt"
+
+
+@anvil.server.callable(RPC_SUBMIT_INTERRUPT)
+def submit_interrupt(*, session_id, session_secret, interrupt_id, response):
+    if not sessions.is_authorized(session_id, session_secret):
         from .drain import NotAuthorizedError
 
         raise NotAuthorizedError("Not authorized for this session.")
     tables.write_interrupt_response(session_id, interrupt_id, response)
+
+
+@anvil.server.callable("submit_interrupt")
+def submit_interrupt_legacy(**kwargs):
+    return submit_interrupt(**kwargs)

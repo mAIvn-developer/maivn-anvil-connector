@@ -12,9 +12,9 @@ class _FakeServer:
 
     def call(self, fn: str, **kwargs: Any) -> Any:
         self.calls.append((fn, kwargs))
-        if fn == "start_session":
-            return "sid-1"
-        if fn == "drain_events":
+        if fn == "maivn_start_session":
+            return {"session_id": "sid-1", "session_secret": "secret-1"}
+        if fn == "maivn_drain_events":
             return self._batches.pop(0) if self._batches else []
         return None
 
@@ -48,4 +48,7 @@ def test_session_tracks_cursor_high_water_mark() -> None:
     s.pump_once()
     assert s.cursor == 5
     s.pump_once()
-    assert ("drain_events", {"session_id": "sid-1", "after_seq": 5}) in server.calls
+    assert (
+        "maivn_drain_events",
+        {"session_id": "sid-1", "session_secret": "secret-1", "after_seq": 5},
+    ) in server.calls

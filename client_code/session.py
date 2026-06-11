@@ -9,6 +9,12 @@ module has no direct server dependency.
 from .events import is_terminal, parse_row
 from .poller import CadenceController
 
+# Keep in sync with server_code/sessions.py, drain.py, interrupts.py RPC names.
+_RPC_START = "maivn_start_session"
+_RPC_DRAIN = "maivn_drain_events"
+_RPC_SUBMIT_INTERRUPT = "maivn_submit_interrupt"
+_RPC_CANCEL = "maivn_cancel_session"
+
 
 class MaivnSession:
     """Starts a run and drains its event stream via an injected `call`."""
@@ -20,6 +26,7 @@ class MaivnSession:
         self._example = example
         self._handlers = {}
         self.session_id = None
+        self._session_secret = None
         self.cursor = 0
         self.is_done = False
         self.next_interval = self._cadence.active
@@ -28,30 +35,50 @@ class MaivnSession:
         self._handlers.setdefault(kind, []).append(handler)
 
     def start(self, messages):
-        self.session_id = self._call(
-            "start_session",
+        result = self._call(
+            _RPC_START,
             agent_key=self._agent_key,
             messages=messages,
             example=self._example,
         )
+        if isinstance(result, dict):
+            self.session_id = result.get("session_id")
+            self._session_secret = result.get("session_secret")
+        else:
+            # Legacy servers returned only the session id (no cross-instance auth).
+            self.session_id = result
+            self._session_secret = None
 
     def submit_interrupt(self, interrupt_id, response):
         self._call(
-            "submit_interrupt",
+            _RPC_SUBMIT_INTERRUPT,
             session_id=self.session_id,
+            session_secret=self._session_secret,
             interrupt_id=interrupt_id,
             response=response,
         )
 
     def cancel(self):
         if self.session_id is not None:
-            self._call("cancel_session", session_id=self.session_id)
+            self._call(
+                _RPC_CANCEL,
+                session_id=self.session_id,
+                session_secret=self._session_secret,
+            )
         self.is_done = True
 
     def pump_once(self):
         if self.is_done or self.session_id is None:
             return self.next_interval
-        rows = self._call("drain_events", session_id=self.session_id, after_seq=self.cursor) or []
+        rows = (
+            self._call(
+                _RPC_DRAIN,
+                session_id=self.session_id,
+                session_secret=self._session_secret,
+                after_seq=self.cursor,
+            )
+            or []
+        )
         for row in rows:
             event = parse_row(row)
             self.cursor = max(self.cursor, event.seq)

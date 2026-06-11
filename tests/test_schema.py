@@ -8,13 +8,19 @@ import yaml
 _ROOT = Path(__file__).resolve().parents[1]
 
 
+def _load_anvil_yaml() -> dict[str, Any]:
+    return yaml.safe_load((_ROOT / "anvil.yaml").read_text(encoding="utf-8"))
+
+
 def _schema() -> dict[str, Any]:
-    data: dict[str, Any] = yaml.safe_load((_ROOT / "anvil.yaml").read_text(encoding="utf-8"))
-    return data["db_schema"]
+    return _load_anvil_yaml()["db_schema"]
 
 
 def _column_names(table: dict[str, Any]) -> set[str]:
-    return {c["name"] for c in table["columns"].values()}
+    cols = table["columns"]
+    if isinstance(cols, list):
+        return {c["name"] for c in cols}
+    return {c["name"] for c in cols.values()}
 
 
 def test_events_table_columns() -> None:
@@ -30,4 +36,17 @@ def test_io_table_columns() -> None:
 def test_tables_are_server_only() -> None:
     schema = _schema()
     for name in ("maivn_events", "maivn_io"):
-        assert schema[name]["access"]["client"] == "none"
+        assert schema[name]["client"] == "none"
+        assert schema[name]["server"] == "full"
+
+
+def test_tables_service_is_enabled() -> None:
+    services = _load_anvil_yaml()["services"]
+    sources = {entry["source"] for entry in services}
+    assert "/runtime/services/tables.yml" in sources
+
+
+def test_secrets_service_is_enabled() -> None:
+    services = _load_anvil_yaml()["services"]
+    sources = {entry["source"] for entry in services}
+    assert "/runtime/services/anvil/secrets.yml" in sources

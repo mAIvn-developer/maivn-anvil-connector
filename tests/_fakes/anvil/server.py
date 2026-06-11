@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from collections.abc import Callable
 from typing import Any
 
@@ -7,9 +8,21 @@ _registry: dict[str, Callable[..., Any]] = {}
 _background: list[tuple[str, tuple[Any, ...], dict[str, Any]]] = []
 
 
-def callable(fn: Callable[..., Any]) -> Callable[..., Any]:  # noqa: A001
-    _registry[fn.__name__] = fn
-    return fn
+def callable(name_or_fn=None):  # noqa: A001
+    """Mirror Anvil's @anvil.server.callable and @anvil.server.callable('name')."""
+
+    def register(fn: Callable[..., Any], name: str) -> Callable[..., Any]:
+        _registry[name] = fn
+        return fn
+
+    if inspect.isfunction(name_or_fn) or inspect.ismethod(name_or_fn):
+        return register(name_or_fn, name_or_fn.__name__)
+
+    def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
+        rpc_name = name_or_fn if isinstance(name_or_fn, str) else fn.__name__
+        return register(fn, rpc_name)
+
+    return decorator
 
 
 def background_task(fn: Callable[..., Any]) -> Callable[..., Any]:
@@ -32,8 +45,6 @@ def call(fn_name: str, *args: Any, **kwargs: Any) -> Any:
     return _registry[fn_name](*args, **kwargs)
 
 
-# Anvil's per-session store; a dict-like. Tests always set an owner provider, so
-# this branch is not exercised, but it must exist for the double to be complete.
 session: dict[str, Any] = {}
 
 

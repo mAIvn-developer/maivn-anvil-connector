@@ -1,26 +1,54 @@
 allow_embedding: false
 db_schema:
   maivn_events:
+    client: none
+    columns:
+    - admin_ui: {order: 0, width: 200}
+      name: session_id
+      type: string
+    - admin_ui: {order: 1, width: 120}
+      name: seq
+      type: number
+    - admin_ui: {order: 2, width: 160}
+      name: kind
+      type: string
+    - admin_ui: {order: 3, width: 280}
+      name: payload
+      type: simpleObject
+    - admin_ui: {order: 4, width: 200}
+      name: created
+      type: datetime
+    server: full
     title: maivn_events
-    access: {python_name: maivn_events, server: full, client: none}
-    columns:
-      c_session_id: {name: session_id, type: string}
-      c_seq: {name: seq, type: number}
-      c_kind: {name: kind, type: string}
-      c_payload: {name: payload, type: simpleObject}
-      c_created: {name: created, type: datetime}
   maivn_io:
-    title: maivn_io
-    access: {python_name: maivn_io, server: full, client: none}
+    client: none
     columns:
-      c_session_id: {name: session_id, type: string}
-      c_interrupt_id: {name: interrupt_id, type: string}
-      c_prompt: {name: prompt, type: string}
-      c_input_type: {name: input_type, type: string}
-      c_choices: {name: choices, type: simpleObject}
-      c_response: {name: response, type: string}
-      c_status: {name: status, type: string}
-      c_is_private: {name: is_private, type: bool}
+    - admin_ui: {order: 0, width: 200}
+      name: session_id
+      type: string
+    - admin_ui: {order: 1, width: 200}
+      name: interrupt_id
+      type: string
+    - admin_ui: {order: 2, width: 240}
+      name: prompt
+      type: string
+    - admin_ui: {order: 3, width: 120}
+      name: input_type
+      type: string
+    - admin_ui: {order: 4, width: 200}
+      name: choices
+      type: simpleObject
+    - admin_ui: {order: 5, width: 200}
+      name: response
+      type: string
+    - admin_ui: {order: 6, width: 120}
+      name: status
+      type: string
+    - admin_ui: {order: 7, width: 100}
+      name: is_private
+      type: bool
+    server: full
+    title: maivn_io
 metadata:
   description: Connect Anvil app backends to mAIvn services for agent orchestration.
   title: mAIvn Anvil Connector
@@ -37,4 +65,10 @@ runtime_options:
   server_spec: null
   server_version: python3-full
   version: 2
-services: []
+services:
+- client_config: {}
+  server_config: {auto_create_missing_columns: false}
+  source: /runtime/services/tables.yml
+- client_config: {}
+  server_config: {}
+  source: /runtime/services/anvil/secrets.yml

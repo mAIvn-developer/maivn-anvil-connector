@@ -68,11 +68,22 @@ Set an App Secret named `MAIVN_API_KEY` (Anvil → Secrets). The connector reads
 it server-side via `maivn_anvil_connector.config.resolve_api_key()`. The key
 never reaches the browser.
 
-**Important:** Session ownership is stored as a hidden row in the existing
-`maivn_events` table (not a separate table), so updating the connector does not
-change your Data Tables schema. If you see `Not authorized for this session`,
-update to a connector build that persists ownership in `maivn_events` and
-restart the app server.
+**Important:** Session authorization uses a **session secret** returned from
+`maivn_start_session` (stored as a hidden row in `maivn_events`, not a separate
+table). The client passes this secret on every `maivn_drain_events` call so
+authorization works even when Anvil routes callables to different server
+instances. Callable names are prefixed with `maivn_` to avoid colliding with
+your app's own server functions. If you see `Not authorized for this session`,
+pull the latest connector and restart the app server (client and server must
+both be on the same build).
+
+**Data Tables schema:** The connector ships `maivn_events` and `maivn_io` in
+`anvil.yaml` with the Data Tables service enabled. If the Tables view or
+APP_SCHEMA tab fails to load, pull this fix (valid `db_schema` format plus
+`services: tables.yml`). If Anvil reports a schema mismatch after upgrading
+(for example a leftover `maivn_sessions` table from an intermediate build), use
+Anvil's migration/resolution dialog to align the database with the current
+schema (two tables only).
 
 ### 2. Register your agent (server module, at import time)
 
