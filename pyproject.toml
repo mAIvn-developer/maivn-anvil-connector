@@ -63,6 +63,11 @@ ignore = []
 # modules are therefore written annotation-free, so the required-future-import
 # (I002) and pyupgrade-annotation (UP) rules must not apply there.
 "client_code/**" = ["I002", "UP006", "UP007", "UP035", "UP045"]
+# Anvil's server runtime prepends a line to every Server Module when loading
+# it, so `from __future__` imports raise SyntaxError ("must occur at the
+# beginning of the file"). The app pins a Python 3.10+ server environment, so
+# annotations evaluate fine at runtime without the future import.
+"server_code/**" = ["I002"]
 
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]

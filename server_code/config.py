@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import anvil.secrets
 
 _SECRET_NAME = "MAIVN_API_KEY"

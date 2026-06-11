@@ -1,1 +1,32 @@
-<div anvil-slot="default"></div>
+<div class="maivn-shell">
+  <header class="maivn-header">
+    <div class="maivn-header-inner">
+      <button class="maivn-brand" aria-label="mAIvn home" onclick="anvil.call(this, 'nav', 'Home')">
+        <img class="maivn-brand-logo maivn-brand-logo-light" src="_/theme/maivn_logo_light_mode.svg" alt="mAIvn"
+             onerror="this.style.display='none'">
+        <img class="maivn-brand-logo maivn-brand-logo-dark" src="_/theme/maivn_logo_dark_mode.svg" alt="mAIvn"
+             onerror="this.style.display='none'">
+      </button>
+      <nav class="maivn-nav">
+        <button class="maivn-nav-link" onclick="anvil.call(this, 'nav', 'Home')">Home</button>
+        <button class="maivn-nav-link" onclick="anvil.call(this, 'nav', 'Docs')">Guide</button>
+        <a class="maivn-nav-link" href="https://developer.maivn.io/docs" target="_blank" rel="noopener">SDK docs</a>
+        <button class="maivn-theme-toggle" aria-label="Toggle color theme"
+                onclick="var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);try{localStorage.setItem('maivn-theme',t)}catch(e){}">
+          <svg class="maivn-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+          <svg class="maivn-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+  <main class="maivn-main">
+    <div class="maivn-content" anvil-slot="default"></div>
+  </main>
+  <footer class="maivn-footer">
+    <span>Powered by <strong>mAIvn</strong></span>
+    <span class="maivn-footer-dot">&middot;</span>
+    <a href="https://developer.maivn.io" target="_blank" rel="noopener">developer.maivn.io</a>
+  </footer>
+</div>

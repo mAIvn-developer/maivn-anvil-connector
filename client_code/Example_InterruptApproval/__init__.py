@@ -1,4 +1,5 @@
 # pyright: basic, reportMissingModuleSource=false
+from ..shell import PageShell
 from ..showcase import build_example
 from ._anvil_designer import Example_InterruptApprovalTemplate
 
@@ -24,7 +25,7 @@ registry.register_agent("interrupt_approval", agent)
 """.strip()
 
 
-class Example_InterruptApproval(Example_InterruptApprovalTemplate):
+class Example_InterruptApproval(Example_InterruptApprovalTemplate, PageShell):
     def __init__(self, **properties):
         self.init_components(**properties)
         build_example(

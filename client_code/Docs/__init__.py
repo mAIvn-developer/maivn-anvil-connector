@@ -6,16 +6,18 @@ swarms, structured output) lives at developer.maivn.io/docs and is linked, not
 duplicated here. Skulpt-safe (no annotations/typing).
 """
 
-from anvil import HtmlTemplate, open_form
+from anvil import FlowPanel, HtmlTemplate, open_form
 
+from ..shell import PageShell
 from ..ui import button
 from ._anvil_designer import DocsTemplate
 
 _GUIDE = """
-<div class="maivn-chat">
+<div class="maivn-doc">
   <h1>Use mAIvn in your Anvil app</h1>
   <ol>
-    <li><strong>Prerequisite:</strong> a paid Anvil plan (background tasks).</li>
+    <li><strong>Prerequisite:</strong> a paid Anvil plan (background tasks) with a
+      Python 3.10+ server environment.</li>
     <li><strong>Install the SDK</strong> in your server packages: <code>maivn</code>.</li>
     <li><strong>Add this app as a dependency</strong> in your app's Dependencies.</li>
     <li><strong>Set the secret</strong> <code>MAIVN_API_KEY</code> (Anvil &rarr; Secrets).</li>
@@ -39,17 +41,22 @@ self.add_component(MaivnChatPanel(agent_key="support"))</code></pre>
 """.strip()
 
 
-class Docs(DocsTemplate):
+class Docs(DocsTemplate, PageShell):
     def __init__(self, **properties):
         self.init_components(**properties)
         self.add_component(HtmlTemplate(html=_GUIDE))
-        self.add_component(
+        row = FlowPanel()
+        row.add_component(
+            button("<- Back to home", lambda **e: open_form("Home"), role="maivn-btn-ghost")
+        )
+        row.add_component(
             button(
-                "Full SDK reference (developer.maivn.io) ->",
+                "Full SDK reference ->",
                 lambda **e: _open_url("https://developer.maivn.io/docs"),
+                role="maivn-btn-secondary",
             )
         )
-        self.add_component(button("<- Home", lambda **e: open_form("Home")))
+        self.add_component(row)
 
 
 def _open_url(url):

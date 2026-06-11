@@ -4,5 +4,5 @@ from typing import Any
 
 from anvil import HtmlTemplate
 
-class ComposerTemplate(HtmlTemplate):
+class ExampleCardsTemplate(HtmlTemplate):
     def init_components(self, **properties: Any) -> None: ...

@@ -1,22 +1,28 @@
 /*
  * mAIvn Anvil Connector theme.
  *
- * Two layers:
+ * Three layers:
  *  1. Brand tokens (Material Design 3) ported verbatim from maivn-website
  *     (apps/maivn-website/src/app/globals.css). These brand THIS app's hosted
  *     showcase + docs. Do not hand-tune the hex values; re-port from the
  *     website if the brand seeds change.
- *  2. A `.maivn-*` component layer for the reusable chat components. It reads
+ *  2. Page shell + showcase styling (header, hero, cards, docs typography)
+ *     used by standard-page.html and the showcase forms.
+ *  3. A `.maivn-*` component layer for the reusable chat components. It reads
  *     the tokens via var() WITH fallbacks, so the components stay
  *     theme-agnostic and render acceptably inside a consumer app that does not
  *     define the mAIvn tokens.
+ *
+ * Anvil note: roles set from Python/YAML render as `anvil-role-<name>`
+ * classes, so role-driven rules target `.anvil-role-*`. Bare `.maivn-*`
+ * classes are used by hand-written HTML blocks.
  *
  * Seed colors (from the wordmark):
  *   light  P #1A3554 / S #1F8DA8 / T #7A5AA3
  *   dark   P #C2C3DE / S #75C8DA / T #D2BADA
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=Bricolage+Grotesque:wght@600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Bricolage+Grotesque:wght@600;700&display=swap");
 
 :root {
   --color-bg: #fdfcff;
@@ -92,6 +98,14 @@
   --font-body: "Manrope", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-display: "Bricolage Grotesque", var(--font-body);
+
+  /* Shell-only derived tints (not brand tokens). */
+  --maivn-header-bg: rgba(253, 252, 255, 0.85);
+  --maivn-glass-border: rgba(155, 173, 197, 0.48);
+  --maivn-glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.88) 0%, rgba(243, 248, 255, 0.8) 100%);
+  --maivn-glass-highlight: rgba(255, 255, 255, 0.7);
+  --maivn-grid-line: rgba(148, 163, 184, 0.12);
+  --maivn-focus-ring: rgba(71, 96, 129, 0.3);
 }
 
 html[data-theme="light"] {
@@ -155,54 +169,568 @@ html[data-theme="dark"] {
   --code-operator: #89ddff;
   --code-punctuation: #89ddff;
   --code-plain: #d4d4d4;
+
+  --maivn-header-bg: rgba(19, 19, 22, 0.82);
+  --maivn-glass-border: rgba(255, 255, 255, 0.09);
+  --maivn-glass-bg: linear-gradient(145deg, rgba(53, 52, 56, 0.72) 0%, rgba(31, 31, 35, 0.66) 100%);
+  --maivn-glass-highlight: rgba(255, 255, 255, 0.06);
+  --maivn-grid-line: rgba(148, 163, 184, 0.07);
+  --maivn-focus-ring: rgba(128, 211, 229, 0.3);
 }
 
 /* ----------------------------------------------------------------------------
- * Reusable component layer (theme-agnostic via var() fallbacks).
+ * MARK: Page atmosphere
  * ------------------------------------------------------------------------- */
 
-.maivn-chat {
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-text, #1a1c1e);
+  background-color: var(--color-bg, #fdfcff);
+  background-image:
+    radial-gradient(circle at 8% 10%, rgba(71, 96, 129, 0.12), transparent 28%),
+    radial-gradient(circle at 92% 4%, rgba(0, 103, 125, 0.12), transparent 26%),
+    radial-gradient(circle at 45% 88%, rgba(106, 85, 131, 0.08), transparent 28%),
+    linear-gradient(180deg, #fdfcff 0%, #f4f3f7 45%, #e8e8eb 100%);
+  background-attachment: fixed;
+}
+
+html[data-theme="dark"] body {
+  background-image:
+    radial-gradient(circle at 10% 15%, rgba(195, 196, 223, 0.16), transparent 35%),
+    radial-gradient(circle at 85% 5%, rgba(128, 211, 229, 0.16), transparent 30%),
+    radial-gradient(circle at 45% 85%, rgba(210, 193, 214, 0.14), transparent 35%),
+    linear-gradient(180deg, #131316 0%, #0e0e11 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--maivn-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--maivn-grid-line) 1px, transparent 1px);
+  background-size: 34px 34px;
+  -webkit-mask-image: radial-gradient(circle at 50% 30%, black 18%, transparent 78%);
+  mask-image: radial-gradient(circle at 50% 30%, black 18%, transparent 78%);
+}
+
+::selection {
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-outline-variant) transparent;
+}
+
+/* ----------------------------------------------------------------------------
+ * MARK: Shell (standard-page.html)
+ * ------------------------------------------------------------------------- */
+
+.maivn-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.maivn-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: var(--maivn-header-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  backdrop-filter: blur(16px) saturate(120%);
+}
+
+.maivn-header-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.maivn-brand {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0.2rem 0;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.maivn-brand-logo {
+  height: 1.5rem;
+  width: auto;
+  display: block;
+}
+
+.maivn-brand-logo-dark {
+  display: none;
+}
+
+html[data-theme="dark"] .maivn-brand-logo-light {
+  display: none;
+}
+
+html[data-theme="dark"] .maivn-brand-logo-dark {
+  display: block;
+}
+
+.maivn-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.maivn-nav-link {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0.45rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.maivn-nav-link:hover {
+  color: var(--color-text);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-outline-variant);
+}
+
+.maivn-theme-toggle {
+  appearance: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-left: 0.35rem;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.maivn-theme-toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-outline);
+}
+
+.maivn-theme-toggle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.maivn-icon-moon {
+  display: none;
+}
+
+html[data-theme="dark"] .maivn-icon-sun {
+  display: none;
+}
+
+html[data-theme="dark"] .maivn-icon-moon {
+  display: block;
+}
+
+.maivn-main {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+  box-sizing: border-box;
+}
+
+.maivn-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.maivn-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-outline-variant);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+}
+
+.maivn-footer a {
+  color: var(--color-secondary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.maivn-footer a:hover {
+  text-decoration: underline;
+}
+
+.maivn-footer-dot {
+  opacity: 0.5;
+}
+
+/* ----------------------------------------------------------------------------
+ * MARK: Hero + showcase blocks
+ * ------------------------------------------------------------------------- */
+
+.maivn-hero {
+  text-align: center;
+  padding: 3.25rem 1rem 0.75rem;
+}
+
+.maivn-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.9rem;
+  border: 1px solid var(--color-tertiary);
+  border-radius: var(--radius-full);
+  background: var(--color-tertiary-container);
+  color: var(--color-on-tertiary-container);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.maivn-hero-title {
+  margin: 1.2rem auto 1rem;
+  max-width: 52rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.maivn-text-gradient {
+  background: linear-gradient(115deg, var(--color-primary) 0%, var(--color-secondary) 55%, var(--color-tertiary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.maivn-hero-sub {
+  max-width: 40rem;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.maivn-section-label,
+.anvil-role-maivn-section-label,
+.anvil-role-maivn-section-label * {
+  font-family: var(--font-mono) !important;
+  font-size: 0.72rem !important;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary) !important;
+}
+
+.anvil-role-maivn-section-label {
+  margin-top: 1.5rem;
+}
+
+.maivn-page-head {
+  padding: 0.75rem 0 0.25rem;
+}
+
+.maivn-page-head h2 {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.maivn-page-head p {
+  margin: 0;
+  max-width: 44rem;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+/* ----------------------------------------------------------------------------
+ * MARK: Example cards
+ * ------------------------------------------------------------------------- */
+
+.maivn-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.maivn-card {
+  appearance: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  text-align: left;
+  padding: 1.4rem 1.4rem 1.25rem;
+  border: 1px solid var(--maivn-glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--maivn-glass-bg);
+  box-shadow: inset 0 1px 0 var(--maivn-glass-highlight), var(--shadow-sm);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(14px) saturate(120%);
+  font-family: var(--font-body);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal),
+    border-color var(--transition-normal);
+}
+
+.maivn-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+  box-shadow: inset 0 1px 0 var(--maivn-glass-highlight), var(--shadow-glow-primary);
+}
+
+.maivn-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--maivn-focus-ring);
+}
+
+.maivn-card-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.maivn-card h3 {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.maivn-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.maivn-card-link {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+/* ----------------------------------------------------------------------------
+ * MARK: Buttons (Anvil role classes + bare classes for HTML blocks)
+ * ------------------------------------------------------------------------- */
+
+button.anvil-role-maivn-btn-primary,
+.anvil-role-maivn-btn-primary button,
+button.anvil-role-maivn-btn-secondary,
+.anvil-role-maivn-btn-secondary button,
+button.anvil-role-maivn-btn-ghost,
+.anvil-role-maivn-btn-ghost button,
+button.anvil-role-maivn-composer-send,
+.anvil-role-maivn-composer-send button,
+button.anvil-role-maivn-interrupt-submit,
+.anvil-role-maivn-interrupt-submit button,
+.maivn-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.62rem 1.35rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: transparent;
+  background-image: none;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: var(--color-text, #1a1c1e);
+  text-shadow: none;
+  box-shadow: none;
+  cursor: pointer;
+  transition: transform var(--transition-fast, 150ms ease), box-shadow var(--transition-normal, 220ms ease),
+    filter var(--transition-normal, 220ms ease), background var(--transition-fast, 150ms ease),
+    border-color var(--transition-fast, 150ms ease), color var(--transition-fast, 150ms ease);
+}
+
+button.anvil-role-maivn-btn-primary,
+.anvil-role-maivn-btn-primary button,
+.maivn-btn-primary {
+  background: linear-gradient(90deg, var(--color-primary, #476081), var(--color-secondary, #00677d));
+  border-color: transparent;
+  color: var(--color-on-primary, #ffffff);
+  box-shadow: var(--shadow-glow-primary, 0 14px 30px rgba(71, 96, 129, 0.22));
+}
+
+button.anvil-role-maivn-btn-primary:hover,
+.anvil-role-maivn-btn-primary button:hover,
+.maivn-btn-primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-2px);
+  color: var(--color-on-primary, #ffffff);
+}
+
+button.anvil-role-maivn-btn-secondary,
+.anvil-role-maivn-btn-secondary button,
+.maivn-btn-secondary {
+  border-color: var(--color-outline-variant, #c3c6cf);
+  background: var(--maivn-glass-bg, rgba(255, 255, 255, 0.7));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--color-text, #1a1c1e);
+  box-shadow: var(--shadow-sm, 0 2px 10px rgba(15, 23, 42, 0.06));
+}
+
+button.anvil-role-maivn-btn-secondary:hover,
+.anvil-role-maivn-btn-secondary button:hover,
+.maivn-btn-secondary:hover {
+  border-color: var(--color-primary, #476081);
+  transform: translateY(-2px);
+  color: var(--color-text, #1a1c1e);
+}
+
+button.anvil-role-maivn-btn-ghost,
+.anvil-role-maivn-btn-ghost button,
+.maivn-btn-ghost {
+  color: var(--color-text-secondary, #46474a);
+}
+
+button.anvil-role-maivn-btn-ghost:hover,
+.anvil-role-maivn-btn-ghost button:hover,
+.maivn-btn-ghost:hover {
+  background: var(--color-bg-tertiary, #e8e8eb);
+  border-color: var(--color-outline-variant, #c3c6cf);
+  color: var(--color-text, #1a1c1e);
+}
+
+button.anvil-role-maivn-btn-primary:focus-visible,
+.anvil-role-maivn-btn-primary button:focus-visible,
+button.anvil-role-maivn-btn-secondary:focus-visible,
+.anvil-role-maivn-btn-secondary button:focus-visible,
+button.anvil-role-maivn-btn-ghost:focus-visible,
+.anvil-role-maivn-btn-ghost button:focus-visible,
+.maivn-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--maivn-focus-ring, rgba(71, 96, 129, 0.3));
+}
+
+/* ----------------------------------------------------------------------------
+ * MARK: Reusable chat components (theme-agnostic via var() fallbacks)
+ * ------------------------------------------------------------------------- */
+
+.maivn-chat,
+.anvil-role-maivn-chat {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  padding: 1.1rem 1.1rem 1rem;
+  border: 1px solid var(--maivn-glass-border, rgba(155, 173, 197, 0.4));
+  border-radius: var(--radius-xl, 1rem);
+  background: var(--maivn-glass-bg, rgba(255, 255, 255, 0.75));
+  box-shadow: inset 0 1px 0 var(--maivn-glass-highlight, rgba(255, 255, 255, 0.6)),
+    var(--shadow-sm, 0 2px 10px rgba(15, 23, 42, 0.06));
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(14px) saturate(120%);
   font-family: var(--font-body, system-ui, sans-serif);
   color: var(--color-text, #1a1c1e);
+}
+
+.maivn-transcript {
+  max-height: min(55vh, 26rem);
+  overflow-y: auto;
+  padding: 0.15rem;
 }
 
 .maivn-transcript-inner {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .maivn-msg {
   display: flex;
-  padding: 0.625rem 0.875rem;
-  border-radius: var(--radius-lg, 0.75rem);
+  padding: 0.65rem 0.95rem;
+  border-radius: var(--radius-xl, 1rem);
   max-width: 85%;
   box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.08));
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.maivn-msg-body > :first-child {
+  margin-top: 0;
+}
+
+.maivn-msg-body > :last-child {
+  margin-bottom: 0;
 }
 
 .maivn-msg-user {
   align-self: flex-end;
-  background: var(--color-primary, #476081);
+  background: linear-gradient(115deg, var(--color-primary, #476081), var(--color-secondary, #00677d));
   color: var(--color-on-primary, #ffffff);
+  border-bottom-right-radius: var(--radius-sm, 0.375rem);
 }
 
 .maivn-msg-assistant {
   align-self: flex-start;
-  background: var(--color-bg-secondary, #f4f3f7);
+  background: var(--color-bg-elevated, #ffffff);
+  border: 1px solid var(--color-outline-variant, #c3c6cf);
   color: var(--color-text, #1a1c1e);
+  border-bottom-left-radius: var(--radius-sm, 0.375rem);
 }
 
 .maivn-msg-error {
   align-self: stretch;
+  max-width: none;
   background: var(--color-error-container, #ffdad6);
+  border: 1px solid var(--color-error, #ba1a1a);
   color: var(--color-on-error-container, #410002);
 }
 
 .maivn-msg-streaming .maivn-msg-body::after {
   content: "|";
+  margin-left: 0.1em;
+  color: var(--color-secondary, #00677d);
   animation: maivn-blink 1s step-end infinite;
 }
 
@@ -215,64 +743,204 @@ html[data-theme="dark"] {
   background: var(--code-bg, #f1f5f9);
   color: var(--code-plain, #1e293b);
   font-family: var(--font-mono, ui-monospace, monospace);
-  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-outline-variant, #c3c6cf);
   border-radius: var(--radius-md, 0.5rem);
   overflow-x: auto;
 }
 
-.maivn-composer-input {
-  flex: 1 1 auto;
-  min-height: 2.5rem;
+/* Composer row: input grows, controls hug the right edge. */
+.maivn-composer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.maivn-composer-grow {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.maivn-composer-grow textarea {
+  width: 100%;
+}
+
+.maivn-composer-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+textarea.anvil-role-maivn-composer-input,
+.anvil-role-maivn-composer-input textarea,
+.anvil-role-maivn-composer-input {
+  flex: 1 1 16rem;
+  min-height: 2.8rem;
+  box-sizing: border-box;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--color-outline-variant, #c3c6cf);
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--color-bg-secondary, #f4f3f7);
+  background-image: none;
   font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.95rem;
+  color: var(--color-text, #1a1c1e);
+  box-shadow: none;
+  resize: vertical;
+  transition: border-color var(--transition-fast, 150ms ease), box-shadow var(--transition-fast, 150ms ease);
 }
 
-.maivn-composer-send {
-  background: var(--color-primary, #476081);
-  color: var(--color-on-primary, #ffffff);
+textarea.anvil-role-maivn-composer-input::placeholder,
+.anvil-role-maivn-composer-input textarea::placeholder {
+  color: var(--color-text-tertiary, #5a5e66);
+}
+
+textarea.anvil-role-maivn-composer-input:focus,
+.anvil-role-maivn-composer-input textarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #476081);
+  box-shadow: 0 0 0 3px var(--maivn-focus-ring, rgba(71, 96, 129, 0.3));
+}
+
+.anvil-role-maivn-composer-files,
+.anvil-role-maivn-composer-files label,
+.anvil-role-maivn-composer-files a {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-secondary, #00677d);
+}
+
+button.anvil-role-maivn-composer-send,
+.anvil-role-maivn-composer-send button {
+  background: linear-gradient(90deg, var(--color-primary, #476081), var(--color-secondary, #00677d));
+  border-color: transparent;
   border-radius: var(--radius-full, 9999px);
+  color: var(--color-on-primary, #ffffff);
+  box-shadow: var(--shadow-glow-primary, 0 14px 30px rgba(71, 96, 129, 0.22));
 }
 
+button.anvil-role-maivn-composer-send:hover,
+.anvil-role-maivn-composer-send button:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  color: var(--color-on-primary, #ffffff);
+}
+
+/* Activity feed */
 .maivn-feed {
   border: 1px solid var(--color-outline-variant, #c3c6cf);
-  border-radius: var(--radius-md, 0.5rem);
-  font-size: 0.85rem;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--color-bg-secondary, #f4f3f7);
+  font-size: 0.83rem;
+  overflow: hidden;
 }
 
 .maivn-feed-header {
+  appearance: none;
   width: 100%;
   text-align: left;
   background: transparent;
   border: none;
-  color: var(--color-text-secondary, #46474a);
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.85rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary, #5a5e66);
   cursor: pointer;
+  transition: color var(--transition-fast, 150ms ease);
+}
+
+.maivn-feed-header:hover {
+  color: var(--color-text, #1a1c1e);
 }
 
 .maivn-feed-list {
   list-style: none;
   margin: 0;
-  padding: 0.25rem 0.6rem 0.5rem;
+  padding: 0.1rem 0.85rem 0.6rem;
 }
 
 .maivn-feed-item {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.2rem 0;
+  gap: 0.6rem;
+  padding: 0.22rem 0;
+  border-top: 1px dashed var(--color-outline-variant, #c3c6cf);
+}
+
+.maivn-feed-item:first-child {
+  border-top: none;
 }
 
 .maivn-feed-kind {
+  flex: 0 0 auto;
+  min-width: 6.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
   color: var(--color-tertiary, #6a5583);
   font-weight: 600;
 }
 
-.maivn-interrupt-prompt {
-  font-weight: 600;
-  color: var(--color-secondary, #00677d);
+.maivn-feed-detail {
+  color: var(--color-text-secondary, #46474a);
 }
 
+/* Interrupt prompt */
+.anvil-role-maivn-interrupt {
+  border: 1px solid var(--color-tertiary, #6a5583);
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--color-tertiary-container, #eedcff);
+  padding: 0.9rem 1rem;
+}
+
+.maivn-interrupt-prompt,
+.anvil-role-maivn-interrupt-prompt,
+.anvil-role-maivn-interrupt-prompt * {
+  font-weight: 700;
+  color: var(--color-on-tertiary-container, #24123c) !important;
+}
+
+button.anvil-role-maivn-interrupt-submit,
+.anvil-role-maivn-interrupt-submit button,
 .maivn-interrupt-submit {
   background: var(--color-secondary, #00677d);
+  border-color: transparent;
   color: var(--color-on-secondary, #ffffff);
+}
+
+button.anvil-role-maivn-interrupt-submit:hover,
+.anvil-role-maivn-interrupt-submit button:hover {
+  filter: brightness(1.08);
+  color: var(--color-on-secondary, #ffffff);
+}
+
+/* Notes, view-source, badge */
+.maivn-note {
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary, #5a5e66);
+}
+
+.maivn-source summary {
+  cursor: pointer;
+  padding: 0.35rem 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #46474a);
+}
+
+.maivn-source summary:hover {
+  color: var(--color-text, #1a1c1e);
+}
+
+.maivn-source[open] summary {
+  margin-bottom: 0.4rem;
 }
 
 .maivn-powered {
@@ -285,4 +953,58 @@ html[data-theme="dark"] {
 
 .maivn-powered:hover {
   opacity: 1;
+}
+
+/* ----------------------------------------------------------------------------
+ * MARK: Docs typography
+ * ------------------------------------------------------------------------- */
+
+.maivn-doc {
+  max-width: 46rem;
+}
+
+.maivn-doc h1 {
+  margin: 0.75rem 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.maivn-doc p,
+.maivn-doc li {
+  font-size: 0.97rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.maivn-doc ol {
+  padding-left: 1.3rem;
+}
+
+.maivn-doc li {
+  margin: 0.45rem 0;
+}
+
+.maivn-doc strong {
+  color: var(--color-text);
+}
+
+.maivn-doc code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  color: var(--code-plain);
+  padding: 0.12em 0.4em;
+  border-radius: var(--radius-sm);
+}
+
+.maivn-doc pre.maivn-code {
+  margin: 0.6rem 0;
+}
+
+.maivn-doc pre.maivn-code code {
+  background: transparent;
+  padding: 0;
 }

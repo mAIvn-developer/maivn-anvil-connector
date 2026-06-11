@@ -1,10 +1,11 @@
 # pyright: basic
 """Shared layout for the showcase example forms (DRY chrome around a panel).
 
-Skulpt-safe (no annotations/typing).
+Skulpt-safe (no annotations/typing). The forms render inside the
+standard-page shell; this adds the page head, chat panel, and footer chrome.
 """
 
-from anvil import HtmlTemplate, Label, open_form
+from anvil import HtmlTemplate, open_form
 
 from .components.MaivnChatPanel import MaivnChatPanel
 from .ui import button
@@ -16,19 +17,22 @@ _LIMITS_NOTE = (
 
 
 def build_example(form, agent_key, example, title, description, source):
-    """Populate a ColumnPanel form with a titled, runnable example + source."""
-    form.role = "maivn-chat"
-    form.add_component(Label(text=title, role="maivn-interrupt-prompt"))
-    form.add_component(Label(text=description))
+    """Populate a shell form with a titled, runnable example + source."""
+    head = (
+        f'<div class="maivn-page-head"><h2>{_escape(title)}</h2><p>{_escape(description)}</p></div>'
+    )
+    form.add_component(HtmlTemplate(html=head))
     form.add_component(MaivnChatPanel(agent_key=agent_key, example=example))
-    form.add_component(HtmlTemplate(html=f'<p class="maivn-powered">{_LIMITS_NOTE}</p>'))
+    form.add_component(HtmlTemplate(html=f'<p class="maivn-note">{_LIMITS_NOTE}</p>'))
     form.add_component(
         HtmlTemplate(
-            html=f'<details><summary>View source</summary><pre class="maivn-code">'
-            f"<code>{_escape(source)}</code></pre></details>"
+            html='<details class="maivn-source"><summary>View source</summary>'
+            f'<pre class="maivn-code"><code>{_escape(source)}</code></pre></details>'
         )
     )
-    form.add_component(button("<- Back", lambda **e: open_form("Home")))
+    form.add_component(
+        button("<- All examples", lambda **e: open_form("Home"), role="maivn-btn-ghost")
+    )
 
 
 def _escape(text):

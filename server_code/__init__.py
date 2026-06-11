@@ -11,4 +11,3 @@
 #
 # Anvil auto-imports every server module at startup, which is what registers the
 # @anvil.server.callable / @anvil.server.background_task entry points.
-from __future__ import annotations

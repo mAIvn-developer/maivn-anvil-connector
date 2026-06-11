@@ -1,55 +1,51 @@
 # pyright: basic, reportMissingModuleSource=false
 """Branded showcase landing page. Skulpt-safe (no annotations/typing).
 
-Shows the mAIvn wordmark, a short intro, navigation to the runnable examples,
-and a link out to the SDK reference docs at developer.maivn.io/docs (the SDK
-reference is NOT duplicated here, per the docs policy).
+Hero + CTAs + example cards, rendered inside the standard-page shell. The SDK
+reference is NOT duplicated here, per the docs policy; the shell header links
+out to developer.maivn.io.
 """
 
-from anvil import HtmlTemplate, Label, open_form
+from anvil import FlowPanel, HtmlTemplate, Label, open_form
 
+from ..components.ExampleCards import ExampleCards
+from ..shell import PageShell
 from ..ui import button
 from ._anvil_designer import HomeTemplate
 
 _HERO = """
 <div class="maivn-hero">
-  <img class="maivn-logo" src="_/theme/maivn_logo_light_mode.svg" alt="mAIvn"
-       onerror="this.style.display='none'"/>
-  <h1 class="maivn-hero-title">mAIvn for Anvil</h1>
-  <p class="maivn-hero-sub">
-    Drop a streaming AI agent into any Anvil app. Install the mAIvn SDK in your
-    server, add this app as a dependency, and wire your agent to a chat UI.
-  </p>
+  <span class="maivn-hero-badge">Anvil + mAIvn</span>
+  <h1 class="maivn-hero-title">Drop a streaming
+    <span class="maivn-text-gradient">AI&nbsp;agent</span><br>into your Anvil app</h1>
+  <p class="maivn-hero-sub">Install the mAIvn SDK in your server environment, add this app
+  as a dependency, and wire your agent to a polished chat UI &mdash; live streaming,
+  human-in-the-loop interrupts, and multi-agent swarms included.</p>
 </div>
 """.strip()
 
 
-class Home(HomeTemplate):
+class Home(HomeTemplate, PageShell):
     def __init__(self, **properties):
         self.init_components(**properties)
         self.add_component(HtmlTemplate(html=_HERO))
 
-        self.add_component(Label(text="Live examples", role="maivn-interrupt-prompt"))
-        self.add_component(button("Basic chat", lambda **e: open_form("Example_BasicChat")))
-        self.add_component(
+        ctas = FlowPanel(align="center")
+        ctas.add_component(
             button(
-                "Approval gate (interrupts)",
-                lambda **e: open_form("Example_InterruptApproval"),
+                "Try the basic chat",
+                lambda **e: open_form("Example_BasicChat"),
+                role="maivn-btn-primary",
             )
         )
-        self.add_component(button("Research swarm", lambda **e: open_form("Example_SwarmResearch")))
-
-        self.add_component(Label(text="Learn", role="maivn-interrupt-prompt"))
-        self.add_component(button("Anvil + mAIvn guide", lambda **e: open_form("Docs")))
-        self.add_component(
+        ctas.add_component(
             button(
-                "SDK reference (developer.maivn.io) ->",
-                lambda **e: anvil_open_url("https://developer.maivn.io/docs"),
+                "Read the integration guide",
+                lambda **e: open_form("Docs"),
+                role="maivn-btn-secondary",
             )
         )
+        self.add_component(ctas)
 
-
-def anvil_open_url(url):
-    from anvil.js.window import open as _open
-
-    _open(url, "_blank")
+        self.add_component(Label(text="Live examples", role="maivn-section-label"))
+        self.add_component(ExampleCards())

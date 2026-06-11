@@ -68,7 +68,14 @@ class Container(Component):
 class ColumnPanel(Container): ...
 
 
-class FlowPanel(Container): ...
+class FlowPanel(Container):
+    align: str
+    spacing: str
+
+    def __init__(self, *, align: str = "left", spacing: str = "small", **properties: Any) -> None:
+        super().__init__(**properties)
+        self.align = align
+        self.spacing = spacing
 
 
 class Label(Component):

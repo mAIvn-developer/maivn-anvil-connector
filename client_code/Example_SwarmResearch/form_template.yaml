@@ -1,6 +1,6 @@
 is_package: true
 components: []
 container:
-  type: ColumnPanel
+  type: HtmlTemplate
   properties:
-    role: maivn-chat
+    html: '@theme:standard-page.html'

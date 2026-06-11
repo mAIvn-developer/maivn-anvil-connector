@@ -10,7 +10,7 @@ neutral defaults). Markdown rendering lives in the pure, unit-tested
 from ...markdown import escape_html, render_markdown
 from ._anvil_designer import MessageListTemplate
 
-_CONTAINER = '<div class="maivn-transcript-inner">{rows}</div>'
+_CONTAINER = '<div class="maivn-transcript"><div class="maivn-transcript-inner">{rows}</div></div>'
 
 
 class MessageList(MessageListTemplate):

@@ -1,4 +1,5 @@
 # pyright: basic, reportMissingModuleSource=false
+from ..shell import PageShell
 from ..showcase import build_example
 from ._anvil_designer import Example_SwarmResearchTemplate
 
@@ -15,7 +16,7 @@ registry.register_agent("swarm_research", Swarm(name="swarm_research",
 """.strip()
 
 
-class Example_SwarmResearch(Example_SwarmResearchTemplate):
+class Example_SwarmResearch(Example_SwarmResearchTemplate, PageShell):
     def __init__(self, **properties):
         self.init_components(**properties)
         build_example(

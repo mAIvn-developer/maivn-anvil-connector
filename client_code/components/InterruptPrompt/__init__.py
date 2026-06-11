@@ -28,8 +28,12 @@ class InterruptPrompt(InterruptPromptTemplate):
             self.add_component(self._input)
             self.add_component(button("Submit", self._answer, role="maivn-interrupt-submit"))
         elif self._kind == "boolean":
-            self.add_component(button("Yes", lambda **e: self._send("yes")))
-            self.add_component(button("No", lambda **e: self._send("no")))
+            self.add_component(
+                button("Yes", lambda **e: self._send("yes"), role="maivn-interrupt-submit")
+            )
+            self.add_component(
+                button("No", lambda **e: self._send("no"), role="maivn-btn-secondary")
+            )
         else:
             self._input = TextBox(placeholder="Type your answer...")
             self.add_component(self._input)

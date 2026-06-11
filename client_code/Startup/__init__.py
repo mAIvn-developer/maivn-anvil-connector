@@ -14,9 +14,12 @@ from ._anvil_designer import StartupTemplate
 _THEME_BOOTSTRAP = """
 <script>
   (function () {
+    var stored = null;
+    try { stored = localStorage.getItem('maivn-theme'); } catch (e) {}
     var prefersDark = window.matchMedia
       && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute(
+      'data-theme', stored || (prefersDark ? 'dark' : 'light'));
   })();
 </script>
 """.strip()

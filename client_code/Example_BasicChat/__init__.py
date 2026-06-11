@@ -1,4 +1,5 @@
 # pyright: basic, reportMissingModuleSource=false
+from ..shell import PageShell
 from ..showcase import build_example
 from ._anvil_designer import Example_BasicChatTemplate
 
@@ -16,7 +17,7 @@ self.add_component(MaivnChatPanel(agent_key="basic_chat"))
 """.strip()
 
 
-class Example_BasicChat(Example_BasicChatTemplate):
+class Example_BasicChat(Example_BasicChatTemplate, PageShell):
     def __init__(self, **properties):
         self.init_components(**properties)
         build_example(

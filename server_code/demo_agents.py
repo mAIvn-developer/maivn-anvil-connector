@@ -9,8 +9,6 @@ Usage caps for these examples live in ``limits.py`` and are enforced by
 ``start_session`` when an ``example`` key is supplied.
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from maivn import Agent, Swarm, depends_on_interrupt

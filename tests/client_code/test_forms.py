@@ -22,6 +22,7 @@ _FORMS = [
     "Example_BasicChat",
     "Example_InterruptApproval",
     "Example_SwarmResearch",
+    "components.ExampleCards",
     "components.InterruptPrompt",
     "components.Composer",
     "components.MaivnChatPanel",
@@ -44,9 +45,17 @@ def test_form_instantiates(dotted: str) -> None:
     assert isinstance(form, anvil.Component)
 
 
+def test_shell_forms_provide_nav() -> None:
+    """Pages render inside standard-page.html, whose header calls nav()."""
+    for dotted in ["Home", "Docs", "Example_BasicChat"]:
+        form = _form_class(dotted)()
+        form.nav("Docs")
+        form.nav("NotAForm")  # unknown targets are ignored, not opened
+
+
 def test_template_applies_yaml_container_properties() -> None:
-    home = _form_class("Home")()
-    assert home.role == "maivn-chat"
+    prompt = _form_class("components.InterruptPrompt")()
+    assert prompt.role == "maivn-interrupt"
 
 
 @pytest.mark.parametrize("input_type", ["text", "boolean", "choice"])

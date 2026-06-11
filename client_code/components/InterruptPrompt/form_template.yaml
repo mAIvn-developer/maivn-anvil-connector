@@ -3,3 +3,5 @@ custom_component: true
 components: []
 container:
   type: ColumnPanel
+  properties:
+    role: maivn-interrupt

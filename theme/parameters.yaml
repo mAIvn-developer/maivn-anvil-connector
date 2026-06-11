@@ -1,12 +1,22 @@
 roles:
   - name: maivn-chat
     components: [ColumnPanel]
+  - name: maivn-btn-primary
+    components: [Button]
+  - name: maivn-btn-secondary
+    components: [Button]
+  - name: maivn-btn-ghost
+    components: [Button]
+  - name: maivn-section-label
+    components: [Label]
   - name: maivn-composer-input
     components: [TextArea, TextBox]
   - name: maivn-composer-files
     components: [FileLoader]
   - name: maivn-composer-send
     components: [Button]
+  - name: maivn-interrupt
+    components: [ColumnPanel]
   - name: maivn-interrupt-prompt
     components: [Label]
   - name: maivn-interrupt-submit
