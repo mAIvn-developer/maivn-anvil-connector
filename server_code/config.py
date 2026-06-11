@@ -1,3 +1,5 @@
+"""API key resolution. Anvil-runtime-safe (no annotations)."""
+
 import anvil.secrets
 
 _SECRET_NAME = "MAIVN_API_KEY"
@@ -7,7 +9,7 @@ class MaivnConfigError(RuntimeError):
     """Raised when required connector configuration is missing."""
 
 
-def resolve_api_key(explicit: str | None = None) -> str:
+def resolve_api_key(explicit=None):
     """Return the mAIvn API key, preferring an explicit value over the secret."""
     if explicit:
         return explicit

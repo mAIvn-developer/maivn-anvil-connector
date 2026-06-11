@@ -1,5 +1,6 @@
+"""SDK stream bridge. Anvil-runtime-safe (no annotations)."""
+
 import asyncio
-from typing import Any, Iterable, Protocol
 
 from . import _py310_compat  # noqa: F401
 from maivn.events import (
@@ -10,18 +11,13 @@ from maivn.events import (
 )
 
 
-class _Writer(Protocol):
-    def write(self, kind: str, payload: dict[str, Any]) -> None: ...
-    def flush(self) -> None: ...
-
-
 def run_stream_to_writer(
     *,
-    session_id: str,
-    raw_stream: Iterable[Any],
-    writer: _Writer,
-    default_agent_name: str | None = None,
-) -> None:
+    session_id,
+    raw_stream,
+    writer,
+    default_agent_name=None,
+):
     """Forward a raw SDK stream through a frontend_safe bridge into the writer.
 
     Security boundary: every event is sanitized by the EventBridge
@@ -47,7 +43,7 @@ def run_stream_to_writer(
         loop.close()
 
 
-def _drain(bridge: EventBridge, writer: _Writer) -> None:
+def _drain(bridge, writer):
     while not bridge.stream_queue_empty():
         ui_event = bridge.stream_queue_get_nowait()
         row = ui_event.to_dict()

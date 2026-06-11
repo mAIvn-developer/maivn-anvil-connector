@@ -1,30 +1,30 @@
-from typing import Any, Callable
+"""Showcase usage limits. Anvil-runtime-safe (no annotations)."""
 
 import anvil.server
 
 EXAMPLE_DAILY_CAP = 20
 EXAMPLE_MAX_CHARS = 4000
 
-_counts: dict[str, int] = {}
-_owner_provider: Callable[[], str] | None = None
+_counts = {}
+_owner_provider = None
 
 
 class UsageLimitError(anvil.server.AnvilWrappedError):
     """Raised when a showcase example exceeds its usage cap."""
 
 
-def set_owner_provider(provider: Callable[[], str]) -> None:
+def set_owner_provider(provider):
     global _owner_provider
     _owner_provider = provider
 
 
-def _owner() -> str:
+def _owner():
     if _owner_provider is not None:
         return _owner_provider()
     return "anonymous"
 
 
-def enforce_start(*, example: str | None, messages: list[dict[str, Any]]) -> None:
+def enforce_start(*, example, messages):
     if example is None:
         return
     for m in messages:
@@ -37,5 +37,5 @@ def enforce_start(*, example: str | None, messages: list[dict[str, Any]]) -> Non
     _counts[key] = used + 1
 
 
-def reset() -> None:
+def reset():
     _counts.clear()

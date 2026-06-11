@@ -1,4 +1,4 @@
-from typing import Any
+"""Background agent runner. Anvil-runtime-safe (no annotations)."""
 
 import anvil.server
 
@@ -11,7 +11,7 @@ _ERROR_SENTINEL_SEQ = 2_000_000_000
 
 
 @anvil.server.background_task
-def run_agent_session(*, session_id: str, agent_key: str, messages: list[dict[str, Any]]) -> None:
+def run_agent_session(*, session_id, agent_key, messages):
     """Background task: stream the registered agent and persist sanitized events."""
     writer = EventsWriter(
         session_id,
@@ -41,5 +41,5 @@ def run_agent_session(*, session_id: str, agent_key: str, messages: list[dict[st
         interrupts.reset_active_session(token)
 
 
-def _log_internal(session_id: str, exc: Exception) -> None:
+def _log_internal(session_id, exc):
     print(f"[maivn-connector] session {session_id} failed: {type(exc).__name__}")

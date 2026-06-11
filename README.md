@@ -47,18 +47,20 @@ browser-to-mAIvn connection and no mAIvn platform changes.
 
 ### Anvil server runtime
 
-Anvil's hosted server uses **Python 3.10** by default. The connector's
-`server_code/` modules follow these rules so they load reliably:
+Anvil's hosted server uses **Python 3.10** by default, but the **downlink worker**
+evaluates every annotation at import time and does not tolerate modern typing
+syntax. The connector's `server_code/` modules are therefore **annotation-free**
+(the same policy as `client_code/` for Skulpt):
 
 | Constraint | Why |
 | --- | --- |
+| No type annotations in `server_code/` | Downlink import fails on `list[str]`, `dict[str, Any]`, `str \| None`, subscripted `Callable`, etc. |
 | No `from __future__ import annotations` in server modules | Anvil prepends a line to every server module, which breaks future imports. |
-| Use `typing.Callable` / `typing.Iterable`, not `collections.abc.*[...]` | Subscripting `collections.abc` generics at import time raises `TypeError: 'ABCMeta' object is not subscriptable` on Anvil's runtime. |
 | Import `maivn` only after `_py310_compat` (or import the connector package first) | The SDK expects `datetime.UTC` (3.11+); the connector backports it in `_py310_compat.py`. |
-| Client modules stay annotation-free | The browser runs Skulpt (Python 3.7); see `client_code/` module docstrings. |
+| Client modules stay annotation-free | The browser runs Skulpt (Python 3.7). |
 
-When adding your own server modules, mirror these rules or import
-`maivn_anvil_connector._py310_compat` before `maivn`.
+When adding your own server modules, follow the same annotation-free style or
+import `maivn_anvil_connector._py310_compat` before `maivn`.
 
 ### 1. Configure the API key
 

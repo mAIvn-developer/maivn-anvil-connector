@@ -1,4 +1,3 @@
-# pyright: basic
 """Demo agents registered for the hosted showcase examples.
 
 Constructed at import time (Anvil auto-imports server modules at startup) using
@@ -7,9 +6,9 @@ build error degrades gracefully (logs + skips) instead of crashing the server.
 
 Usage caps for these examples live in ``limits.py`` and are enforced by
 ``start_session`` when an ``example`` key is supplied.
-"""
 
-from typing import Any
+Anvil-runtime-safe (no annotations).
+"""
 
 from maivn import Agent, Swarm, depends_on_interrupt
 
@@ -21,7 +20,7 @@ from .config import MaivnConfigError, resolve_api_key
 from .interrupts import make_anvil_interrupt_handler
 
 
-def _api_key() -> str | None:
+def _api_key():
     try:
         return resolve_api_key()
     except MaivnConfigError:
@@ -29,7 +28,7 @@ def _api_key() -> str | None:
         return None
 
 
-def _build_basic_chat(api_key: str) -> Agent:
+def _build_basic_chat(api_key):
     return Agent(
         name="basic_chat",
         description="A friendly general-purpose assistant.",
@@ -40,7 +39,7 @@ def _build_basic_chat(api_key: str) -> Agent:
     )
 
 
-def _build_interrupt_approval(api_key: str) -> Agent:
+def _build_interrupt_approval(api_key):
     agent = Agent(
         name="interrupt_approval",
         description="Demonstrates a human-in-the-loop approval gate.",
@@ -59,14 +58,14 @@ def _build_interrupt_approval(api_key: str) -> Agent:
         ),
         prompt="Approve deleting this record?",
     )
-    def delete_record(confirmation: bool) -> dict[str, Any]:
+    def delete_record(confirmation):
         # Boolean interrupt: Anvil sends "yes"/"no"; the SDK coerces to bool.
         return {"deleted": confirmation}
 
     return agent
 
 
-def _build_swarm_research(api_key: str) -> Swarm:
+def _build_swarm_research(api_key):
     researcher = Agent(
         name="researcher",
         description="Gathers and summarizes key points.",
@@ -89,7 +88,7 @@ _BUILDERS = {
 }
 
 
-def register_demo_agents() -> None:
+def register_demo_agents():
     api_key = _api_key()
     if api_key is None:
         return

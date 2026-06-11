@@ -1,18 +1,18 @@
-from typing import Any
+"""Agent registry. Anvil-runtime-safe (no annotations)."""
 
-_agents: dict[str, Any] = {}
+_agents = {}
 
 
 class UnknownAgentError(KeyError):
     """Raised when a session references an unregistered agent key."""
 
 
-def register_agent(key: str, agent: Any) -> None:
+def register_agent(key, agent):
     """Expose a maivn Agent/Swarm under a string key the client can request."""
     _agents[key] = agent
 
 
-def resolve_agent(key: str) -> Any:
+def resolve_agent(key):
     try:
         return _agents[key]
     except KeyError as exc:
@@ -21,5 +21,5 @@ def resolve_agent(key: str) -> Any:
         ) from exc
 
 
-def reset() -> None:
+def reset():
     _agents.clear()

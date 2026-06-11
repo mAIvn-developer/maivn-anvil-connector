@@ -1,7 +1,8 @@
+"""Interrupt rendezvous. Anvil-runtime-safe (no annotations)."""
+
 import contextvars
 import time
 import uuid
-from typing import Callable
 
 import anvil.server
 
@@ -11,34 +12,32 @@ from . import sessions, tables
 # (constructed at agent-definition time) can resolve the live session at call
 # time. Same-thread synchronous propagation makes this visible to tool
 # execution during stream iteration.
-_active_session: contextvars.ContextVar[str | None] = contextvars.ContextVar(
-    "maivn_active_session", default=None
-)
+_active_session = contextvars.ContextVar("maivn_active_session", default=None)
 
 
-def set_active_session(session_id: str) -> contextvars.Token[str | None]:
+def set_active_session(session_id):
     return _active_session.set(session_id)
 
 
-def reset_active_session(token: contextvars.Token[str | None]) -> None:
+def reset_active_session(token):
     _active_session.reset(token)
 
 
-def active_session() -> str | None:
+def active_session():
     return _active_session.get()
 
 
 def make_anvil_interrupt_handler(
-    session_id: str | None = None,
+    session_id=None,
     *,
-    interrupt_id: str | None = None,
-    prompt: str = "",
-    input_type: str = "text",
-    choices: list[str] | None = None,
-    is_private: bool = False,
-    poll_seconds: float = 0.5,
-    timeout_seconds: float = 600.0,
-) -> Callable[[str], str]:
+    interrupt_id=None,
+    prompt="",
+    input_type="text",
+    choices=None,
+    is_private=False,
+    poll_seconds=0.5,
+    timeout_seconds=600.0,
+):
     """Return a blocking input_handler for ``@depends_on_interrupt``.
 
     Writes an interrupt request, emits an interrupt_required event, then
@@ -51,7 +50,7 @@ def make_anvil_interrupt_handler(
     """
     iid = interrupt_id or str(uuid.uuid4())
 
-    def handler(handler_prompt: str) -> str:
+    def handler(handler_prompt):
         sid = session_id or active_session()
         if sid is None:
             raise RuntimeError(
@@ -95,7 +94,7 @@ def make_anvil_interrupt_handler(
 
 
 @anvil.server.callable
-def submit_interrupt(*, session_id: str, interrupt_id: str, response: str) -> None:
+def submit_interrupt(*, session_id, interrupt_id, response):
     if sessions.owner_of(session_id) != sessions.current_owner():
         from .drain import NotAuthorizedError
 

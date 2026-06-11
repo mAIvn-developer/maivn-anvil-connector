@@ -1,10 +1,9 @@
+"""Media attachment helpers. Anvil-runtime-safe (no annotations)."""
+
 import base64
-from typing import Any
-
-from anvil.media import Media
 
 
-def media_to_attachment(media: Media) -> dict[str, Any]:
+def media_to_attachment(media):
     """Convert an Anvil Media object into a maivn SDK attachment payload.
 
     The result plugs directly into ``HumanMessage(attachments=[...])``. PDFs and
@@ -17,5 +16,5 @@ def media_to_attachment(media: Media) -> dict[str, Any]:
     }
 
 
-def media_list_to_attachments(items: list[Media]) -> list[dict[str, Any]]:
+def media_list_to_attachments(items):
     return [media_to_attachment(m) for m in items]

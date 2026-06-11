@@ -1,12 +1,12 @@
-from typing import Any
+"""SDK message conversion. Anvil-runtime-safe (no annotations)."""
 
-from maivn.messages import AIMessage, BaseMessage, HumanMessage
+from maivn.messages import AIMessage, HumanMessage
 
 from . import _py310_compat  # noqa: F401
 from .attachments import media_to_attachment
 
 
-def _coerce_attachments(raw: Any) -> list[dict[str, Any]]:
+def _coerce_attachments(raw):
     """Normalize a message's attachments into SDK attachment payloads.
 
     Accepts already-built payload dicts or Anvil ``Media`` objects (converted
@@ -14,8 +14,8 @@ def _coerce_attachments(raw: Any) -> list[dict[str, Any]]:
     """
     if not isinstance(raw, list):
         return []
-    out: list[dict[str, Any]] = []
-    for item in raw:  # type: ignore[misc]
+    out = []
+    for item in raw:
         if isinstance(item, dict):
             out.append(item)
         elif hasattr(item, "get_bytes"):
@@ -23,9 +23,9 @@ def _coerce_attachments(raw: Any) -> list[dict[str, Any]]:
     return out
 
 
-def to_sdk_messages(messages: list[dict[str, Any]]) -> list[BaseMessage]:
+def to_sdk_messages(messages):
     """Convert client-side role/content dicts into SDK message objects."""
-    out: list[BaseMessage] = []
+    out = []
     for m in messages:
         content = str(m.get("content", ""))
         attachments = _coerce_attachments(m.get("attachments"))

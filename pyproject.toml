@@ -65,14 +65,11 @@ ignore = []
 "client_code/**" = ["I002", "UP006", "UP007", "UP035", "UP045"]
 # Anvil's server runtime prepends a line to every Server Module when loading
 # it, so `from __future__` imports raise SyntaxError ("must occur at the
-# beginning of the file"). Anvil's default server environment is Python 3.10;
-# annotations are evaluated at import time. Use `typing.Callable` /
-# `typing.Iterable` (not `collections.abc.*[...]`) and keep `_py310_compat`
-# imported before `maivn` in any module that touches the SDK.
-# Anvil's default server runtime is Python 3.10 without postponed annotations;
-# subscripting collections.abc generics at import time fails on that runtime.
-"server_code/**" = ["I002", "UP035"]
-"server_code/pump.py" = ["I002", "UP035", "I001"]
+# beginning of the file"). Downlink workers evaluate annotations at import time
+# and reject PEP 585/604 syntax, so server_code/ is annotation-free (like
+# client_code/ for Skulpt). Pyright still type-checks tests and local dev.
+"server_code/**" = ["I002", "UP", "UP035", "UP006", "UP007", "UP045"]
+"server_code/pump.py" = ["I002", "UP", "UP035", "UP006", "UP007", "UP045", "I001"]
 
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]

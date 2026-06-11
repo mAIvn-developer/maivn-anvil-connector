@@ -1,10 +1,11 @@
+"""Data Table helpers. Anvil-runtime-safe (no annotations)."""
+
 from datetime import datetime, timezone
-from typing import Any
 
 from anvil.tables import app_tables
 
 
-def append_event(session_id: str, *, seq: int, kind: str, payload: dict[str, Any]) -> None:
+def append_event(session_id, *, seq, kind, payload):
     app_tables.maivn_events.add_row(
         session_id=session_id,
         seq=seq,
@@ -14,7 +15,7 @@ def append_event(session_id: str, *, seq: int, kind: str, payload: dict[str, Any
     )
 
 
-def read_events(session_id: str, *, after_seq: int, limit: int = 500) -> list[dict[str, Any]]:
+def read_events(session_id, *, after_seq, limit=500):
     rows = [
         {"seq": r["seq"], "kind": r["kind"], "payload": r["payload"]}
         for r in app_tables.maivn_events.search(session_id=session_id)
@@ -24,7 +25,7 @@ def read_events(session_id: str, *, after_seq: int, limit: int = 500) -> list[di
     return rows[:limit]
 
 
-def delete_session(session_id: str) -> None:
+def delete_session(session_id):
     for r in list(app_tables.maivn_events.search(session_id=session_id)):
         r.delete()
     for r in list(app_tables.maivn_io.search(session_id=session_id)):
@@ -35,14 +36,14 @@ def delete_session(session_id: str) -> None:
 
 
 def put_interrupt(
-    session_id: str,
+    session_id,
     *,
-    interrupt_id: str,
-    prompt: str,
-    input_type: str,
-    choices: list[str] | None,
-    is_private: bool = False,
-) -> None:
+    interrupt_id,
+    prompt,
+    input_type,
+    choices,
+    is_private=False,
+):
     app_tables.maivn_io.add_row(
         session_id=session_id,
         interrupt_id=interrupt_id,
@@ -55,37 +56,37 @@ def put_interrupt(
     )
 
 
-def _io_row(session_id: str, interrupt_id: str) -> Any:
+def _io_row(session_id, interrupt_id):
     for r in app_tables.maivn_io.search(session_id=session_id):
         if r["interrupt_id"] == interrupt_id:
             return r
     return None
 
 
-def interrupt_exists(session_id: str, interrupt_id: str) -> bool:
+def interrupt_exists(session_id, interrupt_id):
     return _io_row(session_id, interrupt_id) is not None
 
 
-def write_interrupt_response(session_id: str, interrupt_id: str, response: str) -> None:
+def write_interrupt_response(session_id, interrupt_id, response):
     row = _io_row(session_id, interrupt_id)
     if row is not None:
         row["response"] = response
         row["status"] = "answered"
 
 
-def read_interrupt_response(session_id: str, interrupt_id: str) -> str | None:
+def read_interrupt_response(session_id, interrupt_id):
     row = _io_row(session_id, interrupt_id)
     if row is None:
         return None
     return row["response"]
 
 
-def is_interrupt_private(session_id: str, interrupt_id: str) -> bool:
+def is_interrupt_private(session_id, interrupt_id):
     row = _io_row(session_id, interrupt_id)
     return bool(row["is_private"]) if row is not None else False
 
 
-def clear_interrupt(session_id: str, interrupt_id: str) -> None:
+def clear_interrupt(session_id, interrupt_id):
     row = _io_row(session_id, interrupt_id)
     if row is not None:
         row.delete()
