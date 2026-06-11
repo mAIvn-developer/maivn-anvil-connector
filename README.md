@@ -56,7 +56,7 @@ syntax. The connector's `server_code/` modules are therefore **annotation-free**
 | --- | --- |
 | No type annotations in `server_code/` | Downlink import fails on `list[str]`, `dict[str, Any]`, `str \| None`, subscripted `Callable`, etc. |
 | No `from __future__ import annotations` in server modules | Anvil prepends a line to every server module, which breaks future imports. |
-| Import `maivn` only after `_py310_compat` (or import the connector package first) | The SDK expects `datetime.UTC` (3.11+); the connector backports it in `_py310_compat.py`. |
+| Import `maivn` only after `_py310_compat` (or import the connector package first) | The SDK expects `datetime.UTC` and `typing.Self` (3.11+); the connector backports them in `_py310_compat.py`. |
 | Client modules stay annotation-free | The browser runs Skulpt (Python 3.7). |
 
 When adding your own server modules, follow the same annotation-free style or
