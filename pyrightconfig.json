@@ -2,7 +2,6 @@
   "venvPath": "../..",
   "venv": ".venv",
   "typeCheckingMode": "basic",
-  "stubPath": "stubs",
   "include": [
     "server_code",
     "client_code",
@@ -16,6 +15,7 @@
       "root": ".",
       "extraPaths": [
         ".",
+        "stubs",
         "tests/_fakes"
       ]
     }

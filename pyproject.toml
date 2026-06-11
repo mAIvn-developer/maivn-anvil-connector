@@ -48,8 +48,9 @@ only-include = ["README.md", "LICENSE"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
-# Type-checker stub files (.pyi) are re-export shims for the Anvil path-merge
-# layout; they intentionally use star re-exports and are not runtime code.
+# Type-checker re-export shims for the Anvil path-merge layout; not used at
+# runtime (pytest loads the repo root via conftest). Kept out of ruff because
+# star re-exports are intentional.
 extend-exclude = ["stubs"]
 
 [tool.ruff.lint]
@@ -73,6 +74,6 @@ pythonpath = ["."]
 [tool.pyright]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
-stubPath = "stubs"
 include = ["server_code", "client_code", "tests"]
 exclude = [".venv"]
+executionEnvironments = [{ root = ".", extraPaths = [".", "stubs", "tests/_fakes"] }]

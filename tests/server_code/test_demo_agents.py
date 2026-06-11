@@ -51,6 +51,9 @@ def test_delete_record_accepts_boolean_interrupt_responses() -> None:
 
 def test_delete_record_rejects_string_membership_antipattern() -> None:
     """The old str-in-tuple check blocked approval when coerced to 'true'."""
-    legacy_check = lambda confirmation: confirmation.strip().lower() in ("yes", "y", "approve")
+
+    def legacy_check(confirmation: str) -> bool:
+        return confirmation.strip().lower() in ("yes", "y", "approve")
+
     assert legacy_check("yes") is True
     assert legacy_check(str(True).lower()) is False
