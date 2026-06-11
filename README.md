@@ -68,6 +68,13 @@ Set an App Secret named `MAIVN_API_KEY` (Anvil → Secrets). The connector reads
 it server-side via `maivn_anvil_connector.config.resolve_api_key()`. The key
 never reaches the browser.
 
+**Important:** After pulling connector updates, confirm the dependency added the
+`maivn_sessions` Data Table (alongside `maivn_events` and `maivn_io`). Session
+ownership is stored there so `drain_events` works when Anvil routes callables to
+different server instances. If you see `Not authorized for this session`, you are
+likely running an older connector build that kept ownership in memory only —
+update the dependency and restart the app server.
+
 ### 2. Register your agent (server module, at import time)
 
 ```python

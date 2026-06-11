@@ -4,9 +4,8 @@ import secrets
 
 import anvil.server
 
-from . import limits
+from . import limits, tables
 
-_owners = {}
 _owner_provider = None
 
 
@@ -19,11 +18,29 @@ def set_owner_provider(provider):
 def current_owner():
     if _owner_provider is not None:
         return _owner_provider()
-    return str(anvil.server.session.get("session_id", "anonymous"))
+    get_session_id = getattr(anvil.server, "get_session_id", None)
+    if callable(get_session_id):
+        return str(get_session_id())
+    session = anvil.server.session
+    session_id = getattr(session, "session_id", None)
+    if session_id is not None:
+        return str(session_id)
+    if hasattr(session, "get"):
+        stored = session.get("session_id")
+        if stored is not None:
+            return str(stored)
+    return "anonymous"
+
+
+def is_authorized(session_id):
+    bound_owner = owner_of(session_id)
+    if bound_owner is None:
+        return False
+    return bound_owner == current_owner()
 
 
 def owner_of(session_id):
-    return _owners.get(session_id)
+    return tables.read_session_owner(session_id)
 
 
 def bind_owner(session_id, owner=None):
@@ -31,8 +48,15 @@ def bind_owner(session_id, owner=None):
 
     ``start_session`` calls this; it is also the supported seam for advanced
     wiring or tests that need an owned session without launching a task.
+
+    Ownership is stored in the ``maivn_sessions`` Data Table so ``drain_events``
+    and other callables can authorize the caller even when Anvil routes them to
+    a different server instance than ``start_session``.
     """
-    _owners[session_id] = owner if owner is not None else current_owner()
+    tables.bind_session_owner(
+        session_id,
+        owner if owner is not None else current_owner(),
+    )
 
 
 @anvil.server.callable
@@ -49,8 +73,6 @@ def start_session(*, agent_key, messages, example=None):
 @anvil.server.callable
 def cancel_session(*, session_id):
     _require_owner(session_id)
-    from . import tables
-
     tables.append_event(
         session_id,
         seq=2_000_000_001,
@@ -62,9 +84,9 @@ def cancel_session(*, session_id):
 def _require_owner(session_id):
     from .drain import NotAuthorizedError
 
-    if _owners.get(session_id) != current_owner():
+    if not is_authorized(session_id):
         raise NotAuthorizedError("Not authorized for this session.")
 
 
 def reset():
-    _owners.clear()
+    tables.reset_session_owners()

@@ -27,7 +27,12 @@ def test_io_table_columns() -> None:
     assert {"session_id", "interrupt_id", "prompt", "response", "status", "is_private"} <= cols
 
 
+def test_sessions_table_columns() -> None:
+    cols = _column_names(_schema()["maivn_sessions"])
+    assert {"session_id", "owner_id", "created"} <= cols
+
+
 def test_tables_are_server_only() -> None:
     schema = _schema()
-    for name in ("maivn_events", "maivn_io"):
+    for name in ("maivn_events", "maivn_io", "maivn_sessions"):
         assert schema[name]["access"]["client"] == "none"

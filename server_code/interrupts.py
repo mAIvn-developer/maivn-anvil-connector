@@ -95,7 +95,7 @@ def make_anvil_interrupt_handler(
 
 @anvil.server.callable
 def submit_interrupt(*, session_id, interrupt_id, response):
-    if sessions.owner_of(session_id) != sessions.current_owner():
+    if not sessions.is_authorized(session_id):
         from .drain import NotAuthorizedError
 
         raise NotAuthorizedError("Not authorized for this session.")

@@ -30,6 +30,32 @@ def delete_session(session_id):
         r.delete()
     for r in list(app_tables.maivn_io.search(session_id=session_id)):
         r.delete()
+    for r in list(app_tables.maivn_sessions.search(session_id=session_id)):
+        r.delete()
+
+
+# MARK: Session ownership
+
+
+def bind_session_owner(session_id, owner_id):
+    for r in list(app_tables.maivn_sessions.search(session_id=session_id)):
+        r.delete()
+    app_tables.maivn_sessions.add_row(
+        session_id=session_id,
+        owner_id=owner_id,
+        created=datetime.now(timezone.utc),
+    )
+
+
+def read_session_owner(session_id):
+    for r in app_tables.maivn_sessions.search(session_id=session_id):
+        return r["owner_id"]
+    return None
+
+
+def reset_session_owners():
+    for r in list(app_tables.maivn_sessions.search()):
+        r.delete()
 
 
 # MARK: Interrupt I/O helpers

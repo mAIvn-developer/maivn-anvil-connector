@@ -21,3 +21,10 @@ def test_events_scoped_by_session() -> None:
     tables.append_event("s1", seq=1, kind="a", payload={})
     tables.append_event("s2", seq=1, kind="b", payload={})
     assert [r["kind"] for r in tables.read_events("s2", after_seq=0)] == ["b"]
+
+
+def test_session_owner_round_trip() -> None:
+    tables.bind_session_owner("s1", "owner-A")
+    assert tables.read_session_owner("s1") == "owner-A"
+    tables.bind_session_owner("s1", "owner-B")
+    assert tables.read_session_owner("s1") == "owner-B"
