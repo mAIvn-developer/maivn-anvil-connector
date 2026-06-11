@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """Scrolling transcript of user / assistant / tool / error bubbles.
 
 Skulpt-safe (no annotations/typing). Theme-agnostic: bubbles use ``maivn-*`` CSS
@@ -7,14 +7,13 @@ neutral defaults). Markdown rendering lives in the pure, unit-tested
 ``maivn_anvil_connector.markdown`` module.
 """
 
-from anvil import HtmlTemplate
-
 from ...markdown import escape_html, render_markdown
+from ._anvil_designer import MessageListTemplate
 
 _CONTAINER = '<div class="maivn-transcript-inner">{rows}</div>'
 
 
-class MessageList(HtmlTemplate):
+class MessageList(MessageListTemplate):
     def __init__(self, **properties):
         self._rows = []
         self._streaming_index = None

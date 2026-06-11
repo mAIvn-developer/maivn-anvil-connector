@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """Collapsible live timeline of tool calls, system tools, and swarm assignments.
 
 Skulpt-safe (no annotations/typing). Bind ``add_event`` to a MaivnSession's
@@ -6,9 +6,8 @@ tool/system/agent events. Starts collapsed; the header toggles visibility.
 Theme-agnostic styling via ``maivn-feed-*`` classes.
 """
 
-from anvil import HtmlTemplate
-
 from ...markdown import escape_html
+from ._anvil_designer import ActivityFeedTemplate
 
 _LABELS = {
     "tool_event": "Tool",
@@ -19,7 +18,7 @@ _LABELS = {
 }
 
 
-class ActivityFeed(HtmlTemplate):
+class ActivityFeed(ActivityFeedTemplate):
     def __init__(self, **properties):
         self._rows = []
         self._open = False

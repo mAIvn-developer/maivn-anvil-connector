@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """Renders the right input control for an interrupt and raises 'x-answer'.
 
 Skulpt-safe (no annotations/typing). Supports input_type in
@@ -6,12 +6,13 @@ Skulpt-safe (no annotations/typing). Supports input_type in
 forwards the value to MaivnSession.submit_interrupt.
 """
 
-from anvil import Button, ColumnPanel, DropDown, Label, TextBox
+from anvil import Button, DropDown, Label, TextBox
 
 from ...interrupt_controls import control_kind
+from ._anvil_designer import InterruptPromptTemplate
 
 
-class InterruptPrompt(ColumnPanel):
+class InterruptPrompt(InterruptPromptTemplate):
     def __init__(self, spec=None, **properties):
         self._spec = spec or {}
         self.init_components(**properties)

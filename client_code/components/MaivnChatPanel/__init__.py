@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """The one-line drop-in: a complete streaming agent chat surface.
 
 Skulpt-safe (no annotations/typing).
@@ -15,7 +15,7 @@ component is theme-agnostic (inherits the host app's theme); the optional
 """
 
 import anvil.server
-from anvil import ColumnPanel, Timer
+from anvil import Timer
 
 from ...session import MaivnSession
 from ..ActivityFeed import ActivityFeed
@@ -23,9 +23,10 @@ from ..Composer import Composer
 from ..InterruptPrompt import InterruptPrompt
 from ..MessageList import MessageList
 from ..PoweredByBadge import PoweredByBadge
+from ._anvil_designer import MaivnChatPanelTemplate
 
 
-class MaivnChatPanel(ColumnPanel):
+class MaivnChatPanel(MaivnChatPanelTemplate):
     def __init__(self, agent_key="", example=None, show_badge=True, **properties):
         self.agent_key = agent_key
         self.example = example

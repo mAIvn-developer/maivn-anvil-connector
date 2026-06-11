@@ -18,6 +18,13 @@ def _register_fake_anvil() -> None:
         sys.path.insert(0, fake_path)
 
 
+def _register_fake_anvil_designer() -> None:
+    """Synthesize per-form ``_anvil_designer`` modules like the Anvil runtime."""
+    import anvil_designer
+
+    anvil_designer.install()
+
+
 def _register_anvil_package() -> None:
     """Load the Anvil dependency app root as ``maivn_anvil_connector``."""
     if _PKG_NAME in sys.modules:
@@ -40,6 +47,7 @@ def _register_anvil_package() -> None:
 
 
 _register_fake_anvil()
+_register_fake_anvil_designer()
 _register_anvil_package()
 
 

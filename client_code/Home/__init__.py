@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """Branded showcase landing page. Skulpt-safe (no annotations/typing).
 
 Shows the mAIvn wordmark, a short intro, navigation to the runnable examples,
@@ -6,7 +6,9 @@ and a link out to the SDK reference docs at developer.maivn.io/docs (the SDK
 reference is NOT duplicated here, per the docs policy).
 """
 
-from anvil import Button, ColumnPanel, HtmlTemplate, Label, open_form
+from anvil import Button, HtmlTemplate, Label, open_form
+
+from ._anvil_designer import HomeTemplate
 
 _HERO = """
 <div class="maivn-hero">
@@ -21,9 +23,8 @@ _HERO = """
 """.strip()
 
 
-class Home(ColumnPanel):
+class Home(HomeTemplate):
     def __init__(self, **properties):
-        self.role = "maivn-chat"
         self.init_components(**properties)
         self.add_component(HtmlTemplate(html=_HERO))
 

@@ -28,7 +28,10 @@ class Component:
     def __init__(self, **properties: Any) -> None:
         self.role = properties.get("role")
 
-    def init_components(self, **properties: Any) -> None: ...
+    # NOTE: deliberately no ``init_components`` here. In real Anvil it exists only
+    # on the designer-generated ``_anvil_designer`` templates (faked by the
+    # ``anvil_designer`` meta-path finder), not on raw components — defining it on
+    # Component would mask forms that subclass a raw container by mistake.
 
     def add_component(
         self,

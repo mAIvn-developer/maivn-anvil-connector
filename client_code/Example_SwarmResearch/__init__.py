@@ -1,7 +1,6 @@
-# pyright: basic
-from anvil import ColumnPanel
-
+# pyright: basic, reportMissingModuleSource=false
 from ..showcase import build_example
+from ._anvil_designer import Example_SwarmResearchTemplate
 
 _SOURCE = """
 from maivn import Agent, Swarm
@@ -16,7 +15,7 @@ registry.register_agent("swarm_research", Swarm(name="swarm_research",
 """.strip()
 
 
-class Example_SwarmResearch(ColumnPanel):
+class Example_SwarmResearch(Example_SwarmResearchTemplate):
     def __init__(self, **properties):
         self.init_components(**properties)
         build_example(

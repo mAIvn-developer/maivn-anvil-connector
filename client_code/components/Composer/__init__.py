@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """Message composer: text box + send button + attachment loader.
 
 Skulpt-safe (no annotations/typing). Exposes ``text`` and ``attachments`` (a
@@ -6,10 +6,12 @@ list of Anvil Media) and raises 'x-send' when the user submits. The host clears
 it via ``reset()`` after send.
 """
 
-from anvil import Button, FileLoader, FlowPanel, TextArea
+from anvil import Button, FileLoader, TextArea
+
+from ._anvil_designer import ComposerTemplate
 
 
-class Composer(FlowPanel):
+class Composer(ComposerTemplate):
     def __init__(self, **properties):
         self.init_components(**properties)
         self._text = TextArea(placeholder="Send a message...", role="maivn-composer-input")

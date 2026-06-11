@@ -1,7 +1,6 @@
-# pyright: basic
-from anvil import ColumnPanel
-
+# pyright: basic, reportMissingModuleSource=false
 from ..showcase import build_example
+from ._anvil_designer import Example_InterruptApprovalTemplate
 
 _SOURCE = """
 from maivn import Agent, depends_on_interrupt
@@ -25,7 +24,7 @@ registry.register_agent("interrupt_approval", agent)
 """.strip()
 
 
-class Example_InterruptApproval(ColumnPanel):
+class Example_InterruptApproval(Example_InterruptApprovalTemplate):
     def __init__(self, **properties):
         self.init_components(**properties)
         build_example(

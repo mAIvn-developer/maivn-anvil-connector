@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """Startup form: applies the mAIvn theme and opens the branded Home.
 
 Skulpt-safe (no annotations/typing). Set as the app ``startup_form`` in
@@ -7,7 +7,9 @@ the mAIvn light/dark tokens apply.
 """
 
 import anvil.js
-from anvil import HtmlTemplate, open_form
+from anvil import open_form
+
+from ._anvil_designer import StartupTemplate
 
 _THEME_BOOTSTRAP = """
 <script>
@@ -20,9 +22,9 @@ _THEME_BOOTSTRAP = """
 """.strip()
 
 
-class Startup(HtmlTemplate):
+class Startup(StartupTemplate):
     def __init__(self, **properties):
-        self.html = _THEME_BOOTSTRAP
         self.init_components(**properties)
+        self.html = _THEME_BOOTSTRAP
         anvil.js.call_js("eval", _THEME_BOOTSTRAP.replace("<script>", "").replace("</script>", ""))
         open_form("Home")

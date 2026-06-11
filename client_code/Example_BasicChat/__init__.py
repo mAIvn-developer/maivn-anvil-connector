@@ -1,7 +1,6 @@
-# pyright: basic
-from anvil import ColumnPanel
-
+# pyright: basic, reportMissingModuleSource=false
 from ..showcase import build_example
+from ._anvil_designer import Example_BasicChatTemplate
 
 _SOURCE = """
 from maivn import Agent
@@ -17,7 +16,7 @@ self.add_component(MaivnChatPanel(agent_key="basic_chat"))
 """.strip()
 
 
-class Example_BasicChat(ColumnPanel):
+class Example_BasicChat(Example_BasicChatTemplate):
     def __init__(self, **properties):
         self.init_components(**properties)
         build_example(

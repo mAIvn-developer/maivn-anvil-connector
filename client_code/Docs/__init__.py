@@ -1,4 +1,4 @@
-# pyright: basic
+# pyright: basic, reportMissingModuleSource=false
 """In-app Anvil + mAIvn integration guide.
 
 Covers the Anvil-specific wiring only. The SDK reference (agents, tools,
@@ -6,7 +6,9 @@ swarms, structured output) lives at developer.maivn.io/docs and is linked, not
 duplicated here. Skulpt-safe (no annotations/typing).
 """
 
-from anvil import Button, ColumnPanel, HtmlTemplate, open_form
+from anvil import Button, HtmlTemplate, open_form
+
+from ._anvil_designer import DocsTemplate
 
 _GUIDE = """
 <div class="maivn-chat">
@@ -36,9 +38,8 @@ self.add_component(MaivnChatPanel(agent_key="support"))</code></pre>
 """.strip()
 
 
-class Docs(ColumnPanel):
+class Docs(DocsTemplate):
     def __init__(self, **properties):
-        self.role = "maivn-chat"
         self.init_components(**properties)
         self.add_component(HtmlTemplate(html=_GUIDE))
         self.add_component(
