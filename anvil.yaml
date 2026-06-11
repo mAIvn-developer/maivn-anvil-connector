@@ -21,13 +21,6 @@ db_schema:
       c_response: {name: response, type: string}
       c_status: {name: status, type: string}
       c_is_private: {name: is_private, type: bool}
-  maivn_sessions:
-    title: maivn_sessions
-    access: {python_name: maivn_sessions, server: full, client: none}
-    columns:
-      c_session_id: {name: session_id, type: string}
-      c_owner_id: {name: owner_id, type: string}
-      c_created: {name: created, type: datetime}
 metadata:
   description: Connect Anvil app backends to mAIvn services for agent orchestration.
   title: mAIvn Anvil Connector

@@ -4,6 +4,9 @@ from datetime import datetime, timezone
 
 from anvil.tables import app_tables
 
+_OWNER_SEQ = 0
+_OWNER_KIND = "_session_owner"
+
 
 def append_event(session_id, *, seq, kind, payload):
     app_tables.maivn_events.add_row(
@@ -19,7 +22,7 @@ def read_events(session_id, *, after_seq, limit=500):
     rows = [
         {"seq": r["seq"], "kind": r["kind"], "payload": r["payload"]}
         for r in app_tables.maivn_events.search(session_id=session_id)
-        if r["seq"] > after_seq
+        if r["seq"] > after_seq and r["kind"] != _OWNER_KIND
     ]
     rows.sort(key=lambda r: r["seq"])
     return rows[:limit]
@@ -30,32 +33,38 @@ def delete_session(session_id):
         r.delete()
     for r in list(app_tables.maivn_io.search(session_id=session_id)):
         r.delete()
-    for r in list(app_tables.maivn_sessions.search(session_id=session_id)):
-        r.delete()
 
 
 # MARK: Session ownership
 
 
 def bind_session_owner(session_id, owner_id):
-    for r in list(app_tables.maivn_sessions.search(session_id=session_id)):
-        r.delete()
-    app_tables.maivn_sessions.add_row(
-        session_id=session_id,
-        owner_id=owner_id,
-        created=datetime.now(timezone.utc),
+    for r in list(app_tables.maivn_events.search(session_id=session_id)):
+        if r["kind"] == _OWNER_KIND:
+            r.delete()
+    append_event(
+        session_id,
+        seq=_OWNER_SEQ,
+        kind=_OWNER_KIND,
+        payload={"owner_id": owner_id},
     )
 
 
 def read_session_owner(session_id):
-    for r in app_tables.maivn_sessions.search(session_id=session_id):
-        return r["owner_id"]
+    for r in app_tables.maivn_events.search(session_id=session_id):
+        if r["kind"] == _OWNER_KIND:
+            payload = r["payload"]
+            if isinstance(payload, dict):
+                owner_id = payload.get("owner_id")
+                if owner_id is not None:
+                    return str(owner_id)
     return None
 
 
 def reset_session_owners():
-    for r in list(app_tables.maivn_sessions.search()):
-        r.delete()
+    for r in list(app_tables.maivn_events.search()):
+        if r["kind"] == _OWNER_KIND:
+            r.delete()
 
 
 # MARK: Interrupt I/O helpers

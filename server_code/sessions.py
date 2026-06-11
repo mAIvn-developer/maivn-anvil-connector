@@ -49,9 +49,10 @@ def bind_owner(session_id, owner=None):
     ``start_session`` calls this; it is also the supported seam for advanced
     wiring or tests that need an owned session without launching a task.
 
-    Ownership is stored in the ``maivn_sessions`` Data Table so ``drain_events``
-    and other callables can authorize the caller even when Anvil routes them to
-    a different server instance than ``start_session``.
+    Ownership is stored as a sentinel row in ``maivn_events`` (seq 0,
+    kind ``_session_owner``) so ``drain_events`` can authorize the caller even
+    when Anvil routes callables to a different server instance than
+    ``start_session``, without requiring a schema change.
     """
     tables.bind_session_owner(
         session_id,

@@ -28,3 +28,10 @@ def test_session_owner_round_trip() -> None:
     assert tables.read_session_owner("s1") == "owner-A"
     tables.bind_session_owner("s1", "owner-B")
     assert tables.read_session_owner("s1") == "owner-B"
+
+
+def test_session_owner_row_is_not_drained_to_client() -> None:
+    tables.bind_session_owner("s1", "owner-A")
+    tables.append_event("s1", seq=1, kind="final", payload={"data": {"response": "done"}})
+    rows = tables.read_events("s1", after_seq=0)
+    assert [r["kind"] for r in rows] == ["final"]
