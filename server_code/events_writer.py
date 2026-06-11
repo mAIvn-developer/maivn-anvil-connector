@@ -1,5 +1,4 @@
-from collections.abc import Callable
-from typing import Any
+from typing import Any, Callable
 
 AppendRow = Callable[..., None]
 _CHUNK_KIND = "assistant_chunk"

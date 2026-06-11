@@ -1,15 +1,13 @@
 import asyncio
-from collections.abc import Iterable
-from typing import Any, Protocol
+from typing import Any, Iterable, Protocol
 
+from . import _py310_compat  # noqa: F401
 from maivn.events import (
     EventBridge,
     NormalizedStreamState,
     forward_normalized_event,
     normalize_stream_event,
 )
-
-from . import _py310_compat  # noqa: F401
 
 
 class _Writer(Protocol):

@@ -1,11 +1,19 @@
-"""Backport ``datetime.UTC`` for Anvil's Python 3.10 server runtime.
+"""Anvil server-runtime bootstrap (Python 3.10).
 
-``maivn`` / ``maivn_shared`` use ``from datetime import UTC``, which was added
-in Python 3.11. Anvil server code still runs on 3.10, so we patch the stdlib
-module before any SDK import.
+Anvil auto-imports every server module at startup and prepends a line to each
+one, so ``from __future__ import annotations`` is forbidden in ``server_code/``.
+Every annotation is therefore evaluated at import time.
+
+Constraints on hosted Anvil (see README "Anvil server runtime"):
+
+- ``datetime.UTC`` is 3.11+; patch it before importing ``maivn``.
+- Do not subscript ``collections.abc`` generics (``Callable``, ``Iterable``,
+  etc.) at module level or in annotations; use ``typing.Callable``,
+  ``typing.Iterable``, and friends instead.
+- ``list[str]``, ``dict[str, Any]``, and ``str | None`` are fine on 3.10.
 
 This module is named with a leading underscore so Anvil auto-imports it before
-other server modules (for example ``demo_agents``) during dependency startup.
+other server modules during dependency startup.
 """
 
 import datetime

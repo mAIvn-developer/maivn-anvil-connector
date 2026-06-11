@@ -41,6 +41,24 @@ browser-to-mAIvn connection and no mAIvn platform changes.
   `@anvil.server.background_task`, which requires background tasks.
 - The **`maivn` SDK** installed in your app's server packages.
 - This app added as a **dependency** in your app's Dependencies.
+- Your consuming app must use Anvil's **Python 3.10** server environment
+  (the default; see
+  [Python versions and packages](https://anvil.works/docs/server/python-versions/packages)).
+
+### Anvil server runtime
+
+Anvil's hosted server uses **Python 3.10** by default. The connector's
+`server_code/` modules follow these rules so they load reliably:
+
+| Constraint | Why |
+| --- | --- |
+| No `from __future__ import annotations` in server modules | Anvil prepends a line to every server module, which breaks future imports. |
+| Use `typing.Callable` / `typing.Iterable`, not `collections.abc.*[...]` | Subscripting `collections.abc` generics at import time raises `TypeError: 'ABCMeta' object is not subscriptable` on Anvil's runtime. |
+| Import `maivn` only after `_py310_compat` (or import the connector package first) | The SDK expects `datetime.UTC` (3.11+); the connector backports it in `_py310_compat.py`. |
+| Client modules stay annotation-free | The browser runs Skulpt (Python 3.7); see `client_code/` module docstrings. |
+
+When adding your own server modules, mirror these rules or import
+`maivn_anvil_connector._py310_compat` before `maivn`.
 
 ### 1. Configure the API key
 

@@ -1,7 +1,7 @@
 import contextvars
 import time
 import uuid
-from collections.abc import Callable
+from typing import Callable
 
 import anvil.server
 
