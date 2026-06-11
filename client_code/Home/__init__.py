@@ -6,8 +6,9 @@ and a link out to the SDK reference docs at developer.maivn.io/docs (the SDK
 reference is NOT duplicated here, per the docs policy).
 """
 
-from anvil import Button, HtmlTemplate, Label, open_form
+from anvil import HtmlTemplate, Label, open_form
 
+from ..ui import button
 from ._anvil_designer import HomeTemplate
 
 _HERO = """
@@ -29,25 +30,21 @@ class Home(HomeTemplate):
         self.add_component(HtmlTemplate(html=_HERO))
 
         self.add_component(Label(text="Live examples", role="maivn-interrupt-prompt"))
+        self.add_component(button("Basic chat", lambda **e: open_form("Example_BasicChat")))
         self.add_component(
-            Button(text="Basic chat", click=lambda **e: open_form("Example_BasicChat"))
-        )
-        self.add_component(
-            Button(
-                text="Approval gate (interrupts)",
-                click=lambda **e: open_form("Example_InterruptApproval"),
+            button(
+                "Approval gate (interrupts)",
+                lambda **e: open_form("Example_InterruptApproval"),
             )
         )
-        self.add_component(
-            Button(text="Research swarm", click=lambda **e: open_form("Example_SwarmResearch"))
-        )
+        self.add_component(button("Research swarm", lambda **e: open_form("Example_SwarmResearch")))
 
         self.add_component(Label(text="Learn", role="maivn-interrupt-prompt"))
-        self.add_component(Button(text="Anvil + mAIvn guide", click=lambda **e: open_form("Docs")))
+        self.add_component(button("Anvil + mAIvn guide", lambda **e: open_form("Docs")))
         self.add_component(
-            Button(
-                text="SDK reference (developer.maivn.io) ->",
-                click=lambda **e: anvil_open_url("https://developer.maivn.io/docs"),
+            button(
+                "SDK reference (developer.maivn.io) ->",
+                lambda **e: anvil_open_url("https://developer.maivn.io/docs"),
             )
         )
 

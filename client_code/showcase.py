@@ -4,9 +4,10 @@
 Skulpt-safe (no annotations/typing).
 """
 
-from anvil import Button, HtmlTemplate, Label, open_form
+from anvil import HtmlTemplate, Label, open_form
 
 from .components.MaivnChatPanel import MaivnChatPanel
+from .ui import button
 
 _LIMITS_NOTE = (
     "Demo limited: capped messages/day and short responses. Install the SDK with "
@@ -27,7 +28,7 @@ def build_example(form, agent_key, example, title, description, source):
             f"<code>{_escape(source)}</code></pre></details>"
         )
     )
-    form.add_component(Button(text="<- Back", click=lambda **e: open_form("Home")))
+    form.add_component(button("<- Back", lambda **e: open_form("Home")))
 
 
 def _escape(text):

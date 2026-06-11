@@ -6,9 +6,10 @@ Skulpt-safe (no annotations/typing). Supports input_type in
 forwards the value to MaivnSession.submit_interrupt.
 """
 
-from anvil import Button, DropDown, Label, TextBox
+from anvil import DropDown, Label, TextBox
 
 from ...interrupt_controls import control_kind
+from ...ui import button
 from ._anvil_designer import InterruptPromptTemplate
 
 
@@ -25,18 +26,14 @@ class InterruptPrompt(InterruptPromptTemplate):
         if self._kind == "choice":
             self._input = DropDown(items=list(self._spec.get("choices") or []))
             self.add_component(self._input)
-            self.add_component(
-                Button(text="Submit", role="maivn-interrupt-submit", click=self._answer)
-            )
+            self.add_component(button("Submit", self._answer, role="maivn-interrupt-submit"))
         elif self._kind == "boolean":
-            self.add_component(Button(text="Yes", click=lambda **e: self._send("yes")))
-            self.add_component(Button(text="No", click=lambda **e: self._send("no")))
+            self.add_component(button("Yes", lambda **e: self._send("yes")))
+            self.add_component(button("No", lambda **e: self._send("no")))
         else:
             self._input = TextBox(placeholder="Type your answer...")
             self.add_component(self._input)
-            self.add_component(
-                Button(text="Submit", role="maivn-interrupt-submit", click=self._answer)
-            )
+            self.add_component(button("Submit", self._answer, role="maivn-interrupt-submit"))
 
     def _answer(self, **event_args):
         attr = "selected_value" if self._kind == "choice" else "text"

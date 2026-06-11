@@ -47,3 +47,12 @@ def test_form_instantiates(dotted: str) -> None:
 def test_template_applies_yaml_container_properties() -> None:
     home = _form_class("Home")()
     assert home.role == "maivn-chat"
+
+
+@pytest.mark.parametrize("input_type", ["text", "boolean", "choice"])
+def test_interrupt_prompt_variants(input_type: str) -> None:
+    spec: dict[str, Any] = {"prompt": "Approve?", "input_type": input_type}
+    if input_type == "choice":
+        spec["choices"] = ["a", "b"]
+    prompt = _form_class("components.InterruptPrompt")(spec=spec)
+    assert isinstance(prompt, anvil.Component)

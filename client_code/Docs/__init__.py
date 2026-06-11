@@ -6,8 +6,9 @@ swarms, structured output) lives at developer.maivn.io/docs and is linked, not
 duplicated here. Skulpt-safe (no annotations/typing).
 """
 
-from anvil import Button, HtmlTemplate, open_form
+from anvil import HtmlTemplate, open_form
 
+from ..ui import button
 from ._anvil_designer import DocsTemplate
 
 _GUIDE = """
@@ -43,12 +44,12 @@ class Docs(DocsTemplate):
         self.init_components(**properties)
         self.add_component(HtmlTemplate(html=_GUIDE))
         self.add_component(
-            Button(
-                text="Full SDK reference (developer.maivn.io) ->",
-                click=lambda **e: _open_url("https://developer.maivn.io/docs"),
+            button(
+                "Full SDK reference (developer.maivn.io) ->",
+                lambda **e: _open_url("https://developer.maivn.io/docs"),
             )
         )
-        self.add_component(Button(text="<- Home", click=lambda **e: open_form("Home")))
+        self.add_component(button("<- Home", lambda **e: open_form("Home")))
 
 
 def _open_url(url):

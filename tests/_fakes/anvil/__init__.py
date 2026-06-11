@@ -4,9 +4,10 @@ This package is the project's `anvil` resolution source for both pytest (runtime
 behaviour) and basedpyright (types). It mirrors the *real* Anvil API surface the
 connector uses so the type checker validates component usage; at Anvil runtime
 the genuine `anvil` package is provided by the platform and this double is never
-loaded. The classes here have trivial runtime bodies — tests do not instantiate
-UI components, but the package must import cleanly and the signatures must match
-Anvil so type checking is meaningful.
+loaded. The form smoke tests instantiate every form against these classes, so
+the doubles enforce the real Anvil contract where it bites: constructors accept
+only properties (event handlers go through ``set_event_handler``), and
+``init_components`` exists only on the ``_anvil_designer`` templates.
 """
 
 from __future__ import annotations
@@ -15,6 +16,8 @@ from collections.abc import Callable
 from typing import Any
 
 # MARK: Component model
+
+_COMMON_PROPERTY_NAMES = frozenset({"role", "visible", "enabled", "tag"})
 
 
 class Component:
@@ -26,6 +29,13 @@ class Component:
     tag: Any
 
     def __init__(self, **properties: Any) -> None:
+        # Real Anvil rejects unknown constructor kwargs — notably event handlers
+        # like ``click``, which must be wired via ``set_event_handler``.
+        unexpected = sorted(set(properties) - _COMMON_PROPERTY_NAMES)
+        if unexpected:
+            names = ", ".join(repr(name) for name in unexpected)
+            msg = f"{type(self).__name__} got unexpected keyword argument(s): {names}"
+            raise TypeError(msg)
         self.role = properties.get("role")
 
     # NOTE: deliberately no ``init_components`` here. In real Anvil it exists only
@@ -72,14 +82,7 @@ class Label(Component):
 class Button(Component):
     text: str
 
-    def __init__(
-        self,
-        *,
-        text: str = "",
-        role: str | None = None,
-        click: Callable[..., Any] | None = None,
-        **properties: Any,
-    ) -> None:
+    def __init__(self, *, text: str = "", role: str | None = None, **properties: Any) -> None:
         super().__init__(role=role, **properties)
         self.text = text
 

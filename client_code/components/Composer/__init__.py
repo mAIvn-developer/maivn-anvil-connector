@@ -6,8 +6,9 @@ list of Anvil Media) and raises 'x-send' when the user submits. The host clears
 it via ``reset()`` after send.
 """
 
-from anvil import Button, FileLoader, TextArea
+from anvil import FileLoader, TextArea
 
+from ...ui import button
 from ._anvil_designer import ComposerTemplate
 
 
@@ -16,7 +17,7 @@ class Composer(ComposerTemplate):
         self.init_components(**properties)
         self._text = TextArea(placeholder="Send a message...", role="maivn-composer-input")
         self._loader = FileLoader(multiple=True, role="maivn-composer-files")
-        self._send = Button(text="Send", role="maivn-composer-send", click=self._on_send)
+        self._send = button("Send", self._on_send, role="maivn-composer-send")
         self.add_component(self._text)
         self.add_component(self._loader)
         self.add_component(self._send)
