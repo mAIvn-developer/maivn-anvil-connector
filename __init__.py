@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 
+import datetime
 import os
+
+if not hasattr(datetime, "UTC"):
+    datetime.UTC = datetime.timezone.utc  # type: ignore[attr-defined]
 
 __path__ = [
     os.path.join(os.path.dirname(__file__), "server_code"),

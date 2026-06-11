@@ -2,6 +2,7 @@ from typing import Any
 
 from maivn.messages import AIMessage, BaseMessage, HumanMessage
 
+from . import _py310_compat  # noqa: F401
 from .attachments import media_to_attachment
 
 

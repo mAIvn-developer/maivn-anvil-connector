@@ -9,6 +9,8 @@ from maivn.events import (
     normalize_stream_event,
 )
 
+from . import _py310_compat  # noqa: F401
+
 
 class _Writer(Protocol):
     def write(self, kind: str, payload: dict[str, Any]) -> None: ...

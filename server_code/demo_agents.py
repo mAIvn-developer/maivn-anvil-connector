@@ -13,7 +13,10 @@ from typing import Any
 
 from maivn import Agent, Swarm, depends_on_interrupt
 
-from . import registry
+from . import (
+    _py310_compat,  # noqa: F401
+    registry,
+)
 from .config import MaivnConfigError, resolve_api_key
 from .interrupts import make_anvil_interrupt_handler
 
