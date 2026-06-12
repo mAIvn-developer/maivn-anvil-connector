@@ -57,6 +57,7 @@ def _build_interrupt_approval(api_key):
             input_type="boolean", prompt="Approve deleting this record?"
         ),
         prompt="Approve deleting this record?",
+        input_type="boolean",
     )
     def delete_record(confirmation):
         # Boolean interrupt: Anvil sends "yes"/"no"; the SDK coerces to bool.
@@ -96,7 +97,9 @@ def register_demo_agents():
         try:
             registry.register_agent(key, build(api_key))
         except Exception as exc:  # noqa: BLE001 - one bad demo must not break the others
-            print(f"[maivn-connector] demo agent {key!r} failed to build: {type(exc).__name__}")
+            print(
+                f"[maivn-connector] demo agent {key!r} failed to build: {type(exc).__name__}: {exc}"
+            )
 
 
 register_demo_agents()

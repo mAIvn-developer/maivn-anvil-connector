@@ -1,6 +1,7 @@
 """Interrupt rendezvous. Anvil-runtime-safe (no annotations)."""
 
 import contextvars
+import threading
 import time
 import uuid
 
@@ -10,21 +11,27 @@ from . import sessions, tables
 
 # Set by the runner around a streamed turn so a session-less interrupt handler
 # (constructed at agent-definition time) can resolve the live session at call
-# time. Same-thread synchronous propagation makes this visible to tool
-# execution during stream iteration.
+# time. Contextvars propagate on the main path; threading.local is a fallback for
+# Anvil background tasks where contextvar propagation can be unreliable.
 _active_session = contextvars.ContextVar("maivn_active_session", default=None)
+_thread_session = threading.local()
 
 
 def set_active_session(session_id):
+    _thread_session.id = session_id
     return _active_session.set(session_id)
 
 
 def reset_active_session(token):
+    _thread_session.id = None
     _active_session.reset(token)
 
 
 def active_session():
-    return _active_session.get()
+    sid = _active_session.get()
+    if sid is not None:
+        return sid
+    return getattr(_thread_session, "id", None)
 
 
 def make_anvil_interrupt_handler(

@@ -26,6 +26,11 @@ from ..PoweredByBadge import PoweredByBadge
 from ._anvil_designer import MaivnChatPanelTemplate
 
 
+def _server_call(fn, **kwargs):
+    with anvil.server.no_loading_indicator:
+        return anvil.server.call(fn, **kwargs)
+
+
 class MaivnChatPanel(MaivnChatPanelTemplate):
     def __init__(self, agent_key="", example=None, show_badge=True, **properties):
         self.agent_key = agent_key
@@ -65,9 +70,13 @@ class MaivnChatPanel(MaivnChatPanelTemplate):
         self._transcript.add_user(text)
         self._composer.reset()
         self._current_text = ""
+        self._composer.set_busy(True)
+        self._transcript.show_processing()
 
         self._session = MaivnSession(
-            agent_key=self.agent_key, call=anvil.server.call, example=self.example
+            agent_key=self.agent_key,
+            call=_server_call,
+            example=self.example,
         )
         self._session.on("assistant_chunk", self._on_chunk)
         self._session.on("final", self._on_final)
@@ -78,18 +87,30 @@ class MaivnChatPanel(MaivnChatPanelTemplate):
         self._session.on("system_tool_complete", self._feed.add_event)
         self._session.on("agent_assignment", self._feed.add_event)
         self._session.on("status_message", self._feed.add_event)
-        self._session.start(messages=self._messages)
+        try:
+            self._session.start(messages=self._messages)
+        except Exception:
+            self._finish_run()
+            self._transcript.add_error("Could not start the agent run.")
+            return
         self._timer.interval = self._session.next_interval
 
     def _on_tick(self, **event_args):
         if self._session is None:
             return
         interval = self._session.pump_once()
+        if self._session.is_done:
+            self._finish_run()
         self._timer.interval = 0 if self._session.is_done else interval
+
+    def _finish_run(self):
+        self._transcript.hide_processing()
+        self._composer.set_busy(False)
 
     # MARK: event handlers
 
     def _on_chunk(self, event):
+        self._transcript.hide_processing()
         self._current_text += event.text
         self._transcript.update_streaming(self._current_text)
 
@@ -101,6 +122,7 @@ class MaivnChatPanel(MaivnChatPanelTemplate):
         self._transcript.add_error(event.text or "Something went wrong.")
 
     def _on_interrupt(self, event):
+        self._transcript.hide_processing()
         data = event.payload.get("data", {}) if isinstance(event.payload, dict) else {}
         prompt = InterruptPrompt(spec=data)
         prompt.set_event_handler("x-answer", self._make_answer(str(data.get("interrupt_id"))))

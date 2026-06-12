@@ -52,6 +52,17 @@ class AnvilWrappedError(Exception):
     pass
 
 
+class _NoLoadingIndicator:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
+
+
+no_loading_indicator = _NoLoadingIndicator()
+
+
 def reset() -> None:
     _registry.clear()
     _background.clear()

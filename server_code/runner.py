@@ -42,4 +42,4 @@ def run_agent_session(*, session_id, agent_key, messages):
 
 
 def _log_internal(session_id, exc):
-    print(f"[maivn-connector] session {session_id} failed: {type(exc).__name__}")
+    print(f"[maivn-connector] session {session_id} failed: {type(exc).__name__}: {exc}")

@@ -44,6 +44,11 @@ class Composer(ComposerTemplate):
         self._text.text = ""
         self._loader.clear()
 
+    def set_busy(self, busy):
+        self._text.enabled = not busy
+        self._loader.enabled = not busy
+        self._send.enabled = not busy
+
     def _on_send(self, **event_args):
         if self.text.strip() or self.attachments:
             self.raise_event("x-send")
